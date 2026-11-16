@@ -446,13 +446,23 @@
 
         try {
           const resp = await fetch(`${API_BASE}/api/health/services`, { signal: AbortSignal.timeout(30000) });
-          if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
           const data = await resp.json();
-          renderHealth(data);
+          if (!resp.ok || data.error) {
+            // Backend responded but with an error status
+            if (data.services && data.services.length) {
+              renderHealth(data);
+            } else {
+              loading.style.display = 'none';
+              error.style.display = 'block';
+              error.textContent = `Backend error: ${data.error || 'Server returned an error'}. The server at ${API_BASE} is running but the health check failed.`;
+            }
+          } else {
+            renderHealth(data);
+          }
         } catch (e) {
           loading.style.display = 'none';
           error.style.display = 'block';
-          error.textContent = `Could not reach backend: ${e.message}. Make sure the server at ${API_BASE} is running.`;
+          error.textContent = `Could not reach backend at ${API_BASE}. Make sure the server is running and port 8081 is open.`;
         }
       }
 
