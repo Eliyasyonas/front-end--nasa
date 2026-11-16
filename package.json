@@ -1,0 +1,29 @@
+{
+  "name": "ecorotate",
+  "version": "1.0.0",
+  "description": "NASA Space Apps Challenge 2026, Field Shift Challenge",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5000",
+    "start": "serve dist --no-clipboard -l tcp://0.0.0.0:${PORT:-5000}",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TherealRizwan/Frontend_EcoRotate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TherealRizwan/Frontend_EcoRotate/issues"
+  },
+  "homepage": "https://github.com/TherealRizwan/Frontend_EcoRotate#readme",
+  "devDependencies": {
+    "vite": "^8.3.8"
+  },
+  "dependencies": {
+    "serve": "^14.2.8"
+  }
+}

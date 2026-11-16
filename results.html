@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoRotate — Results & Climate Analytics Dashboard</title>
+
+  <!-- Gilroy Font Family -->
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
+  <link href="https://fonts.cdnfonts.com/css/gilroy-bold" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN with Class-Based Dark Mode -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Gilroy-Bold', 'Gilroy-Heavy', 'Gilroy-ExtraBold', 'Gilroy', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Gilroy-Medium', 'Gilroy-Regular', 'Gilroy', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['Gilroy-SemiBold', 'Gilroy-Medium', 'Gilroy', 'monospace'],
+          },
+          colors: {
+            lightCanvas: '#F3F7F4',
+            lightBorder: '#DCE6DF',
+            forest: {
+              DEFAULT: '#14532D',
+              hover: '#166534',
+              light: '#E6F2EA',
+              muted: '#4B6356',
+            },
+            darkCanvas: '#0B1410',
+            darkSurface: '#121F19',
+            darkInset: '#172820',
+            darkBorder: '#22382E',
+          },
+          boxShadow: {
+            card: '0 4px 20px -2px rgba(20, 83, 45, 0.06), 0 1px 3px 0 rgba(20, 83, 45, 0.04)',
+            darkCard: '0 8px 28px -4px rgba(0, 0, 0, 0.45), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    *, *::before, *::after {
+      font-family: 'Gilroy-Medium', 'Gilroy-Regular', 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    h1, h2, h3, h4, .font-serif, .font-bold {
+      font-family: 'Gilroy-Bold', 'Gilroy-ExtraBold', 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-semibold {
+      font-family: 'Gilroy-SemiBold', 'Gilroy-Medium', 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body {
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .eco-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .eco-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .eco-scroll::-webkit-scrollbar-thumb {
+      background: rgba(75, 99, 86, 0.28);
+      border-radius: 9999px;
+    }
+    .dark .eco-scroll::-webkit-scrollbar-thumb {
+      background: rgba(52, 211, 153, 0.25);
+    }
+    input[type="range"].eco-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #DCE6DF;
+      height: 6px;
+      border-radius: 9999px;
+      outline: none;
+    }
+    .dark input[type="range"].eco-slider {
+      background: #22382E;
+    }
+    input[type="range"].eco-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #14532D;
+      border: 2.5px solid #FFFFFF;
+      box-shadow: 0 2px 8px rgba(20, 83, 45, 0.35);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .dark input[type="range"].eco-slider::-webkit-slider-thumb {
+      background: #34D399;
+      border-color: #0B1410;
+    }
+    input[type="range"].eco-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.14);
+    }
+
+    /* Seasonal Crop Calendar Timeline Grid Pill Transitions */
+    .timeline-pill {
+      transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .timeline-pill:hover {
+      transform: translateY(-50%) scaleY(1.1);
+      filter: brightness(0.97);
+    }
+  </style>
+</head>
+<body class="bg-lightCanvas dark:bg-darkCanvas text-[#132A1E] dark:text-[#ECFDF5] min-h-screen antialiased selection:bg-[#14532D] selection:text-white">
+
+  <!-- TOP HEADER BAR -->
+  <header class="sticky top-0 z-[1100] h-16 bg-white/95 dark:bg-darkSurface/95 backdrop-blur-md border-b border-lightBorder dark:border-darkBorder transition-colors">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-2">
+      <a href="planner.html" class="flex items-center gap-2.5 group focus:outline-none shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-[#14532D] dark:bg-[#166534] group-hover:bg-[#166534] dark:group-hover:bg-[#10B981] flex items-center justify-center transition-colors shadow-sm">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 5C10.8203 5 5 10.8203 5 18C5 21.66 6.51 24.96 8.95 27.32" stroke="#6EE7B7" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M18 31C25.1797 31 31 25.1797 31 18C31 14.34 29.49 11.04 27.05 8.68" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M12.5 21.5C12.5 15.8 16.8 12.2 23.5 12.5C23.8 19.2 20.2 23.5 14.5 23.5C13.4 23.5 12.5 22.6 12.5 21.5Z" fill="#10B981" stroke="#FFFFFF" stroke-width="1.6"/>
+            <path d="M12.5 23.5L18.5 17.5" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="text-xl sm:text-2xl font-bold text-[#14532D] dark:text-[#ECFDF5] tracking-tight">EcoRotate Analytics</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a href="planner.html" class="min-h-[42px] px-3.5 py-2 rounded-full bg-lightCanvas dark:bg-darkInset hover:bg-[#E6F2EA] dark:hover:bg-[#1E352B] border border-lightBorder dark:border-darkBorder text-xs sm:text-sm font-semibold text-[#14532D] dark:text-[#ECFDF5] flex items-center gap-1.5 transition-all cursor-pointer">
+          <span data-i18n="btn_back_planner">← Back to Planner</span>
+        </a>
+
+        <!-- Continent-Grouped Language Dropdown -->
+        <div id="lang-dropdown-wrapper" class="relative">
+          <button id="btn-lang-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"
+            class="min-h-[42px] px-3 sm:px-3.5 py-2 rounded-full bg-lightCanvas dark:bg-darkInset hover:bg-[#E6F2EA] dark:hover:bg-[#1E352B] border border-lightBorder dark:border-darkBorder text-xs sm:text-sm font-semibold text-[#14532D] dark:text-[#ECFDF5] flex items-center gap-2 transition-all cursor-pointer shadow-xs">
+            <svg class="w-4 h-4 text-[#166534] dark:text-[#34D399] shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+            </svg>
+            <span id="current-lang-display" class="truncate max-w-[115px] sm:max-w-[160px]">English</span>
+            <svg class="w-3.5 h-3.5 opacity-75 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div id="lang-dropdown-panel" class="hidden absolute right-0 mt-2 w-72 sm:w-80 max-h-[76vh] overflow-y-auto eco-scroll bg-white dark:bg-[#121F19] border border-lightBorder dark:border-darkBorder rounded-2xl shadow-2xl p-2 z-[1200] space-y-2.5">
+          </div>
+        </div>
+
+        <!-- Light / Dark Theme Toggle -->
+        <button id="theme-toggle-btn" type="button" onclick="toggleTheme()" aria-label="Toggle Theme"
+          class="min-h-[42px] px-3.5 sm:px-4 py-2 rounded-full bg-lightCanvas dark:bg-darkInset hover:bg-[#E6F2EA] dark:hover:bg-[#1E352B] border border-lightBorder dark:border-darkBorder text-xs sm:text-sm font-semibold text-[#14532D] dark:text-[#ECFDF5] flex items-center gap-2 transition-all cursor-pointer shadow-xs">
+          <svg id="icon-sun" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="icon-moon" class="hidden w-4 h-4 text-[#14532D]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <span id="theme-toggle-label">Light Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN RESULTS DASHBOARD CONTAINER -->
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 pt-8 pb-16">
+
+    <!-- API Status Banner (shown when backend results are available or errored) -->
+    <div id="api-status-banner" class="hidden mb-6 rounded-2xl border p-4 flex items-start gap-3">
+      <div id="api-status-icon" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5"></div>
+      <div class="flex-1 min-w-0">
+        <p id="api-status-title" class="text-sm font-bold"></p>
+        <p id="api-status-message" class="text-xs mt-0.5 opacity-80"></p>
+      </div>
+    </div>
+
+    <!-- Section Header + Dual Climate Shock Sliders -->
+    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-5 mb-6">
+      <div class="min-w-0">
+        <div data-i18n="analytics_kicker" class="text-xs font-bold uppercase tracking-widest text-[#166534] dark:text-[#34D399] mb-1.5">
+          ECOROTATE DECISION-SUPPORT ANALYTICS
+        </div>
+        <h2 data-i18n="analytics_title" class="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#14532D] dark:text-[#ECFDF5] tracking-tight">
+          Rotation Strategies & Climate Profit Outlook
+        </h2>
+        <p id="results-subtitle" class="text-xs sm:text-sm text-[#4B6356] dark:text-[#94B8A6] mt-1">
+          Calibrated for 25 Acres in United States (Central Heartland)
+        </p>
+      </div>
+
+      <!-- Dual Interactive Climate Shock Stress-Test Card -->
+      <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-4 shadow-card dark:shadow-darkCard grid grid-cols-1 sm:grid-cols-2 gap-4 xl:min-w-[520px]">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <label for="slider-temp-shock" data-i18n="lbl_temp_shock" class="text-xs font-bold text-[#14532D] dark:text-[#ECFDF5]">🌡️ Temp Anomaly</label>
+            <span id="badge-temp-shock" class="px-2 py-0.5 rounded-md bg-[#E6F2EA] dark:bg-darkInset text-[#14532D] dark:text-[#34D399] text-xs font-bold">
+              +0.0°C
+            </span>
+          </div>
+          <input id="slider-temp-shock" type="range" min="0" max="3" step="0.5" value="0" class="eco-slider w-full" />
+          <div class="flex justify-between text-[10px] text-[#4B6356] dark:text-[#94B8A6] mt-1">
+            <span>0.0°C Normal</span>
+            <span>+1.5°C</span>
+            <span>+3.0°C Heatwave</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <label for="slider-rain-shock" data-i18n="lbl_rain_shock" class="text-xs font-bold text-[#14532D] dark:text-[#ECFDF5]">🌧️ Rainfall Anomaly</label>
+            <span id="badge-rain-shock" class="px-2 py-0.5 rounded-md bg-[#E6F2EA] dark:bg-darkInset text-[#14532D] dark:text-[#34D399] text-xs font-bold">
+              0% Normal
+            </span>
+          </div>
+          <input id="slider-rain-shock" type="range" min="0" max="40" step="5" value="0" class="eco-slider w-full" />
+          <div class="flex justify-between text-[10px] text-[#4B6356] dark:text-[#94B8A6] mt-1">
+            <span>0% Normal</span>
+            <span>-20% Dry</span>
+            <span>-40% Drought</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Profit & Resource Impact KPI Strip -->
+    <div id="kpi-impact-strip" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- 3 Strategy Comparison Cards -->
+    <div id="strategy-cards-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- 4 Interactive Graphs Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+
+      <!-- Graph 1: Cumulative Net Profit Trajectory -->
+      <div class="lg:col-span-6 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl p-5 sm:p-6 shadow-card dark:shadow-darkCard">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div>
+            <h3 data-i18n="g1_title" class="text-lg sm:text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">
+              Cumulative Net Profit Trajectory
+            </h3>
+            <p data-i18n="g1_sub" class="text-xs text-[#4B6356] dark:text-[#94B8A6]">
+              Season-over-season net operating return across all 3 pathways
+            </p>
+          </div>
+          <span id="g1-badge" class="px-2.5 py-1 rounded-lg bg-lightCanvas dark:bg-darkInset border border-lightBorder dark:border-darkBorder text-[11px] font-semibold text-[#14532D] dark:text-[#34D399]">
+            USD
+          </span>
+        </div>
+        <div class="relative w-full h-64 sm:h-72">
+          <canvas id="chart-profit-trajectory"></canvas>
+        </div>
+      </div>
+
+      <!-- Graph 2: Annual Water Demand & Input Cost Comparison -->
+      <div class="lg:col-span-6 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl p-5 sm:p-6 shadow-card dark:shadow-darkCard">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div>
+            <h3 data-i18n="g2_title" class="text-lg sm:text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">
+              Annual Water Demand & Input Cost
+            </h3>
+            <p data-i18n="g2_sub" class="text-xs text-[#4B6356] dark:text-[#94B8A6]">
+              Irrigation volume (m³/yr) vs. annual variable expense
+            </p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-lightCanvas dark:bg-darkInset border border-lightBorder dark:border-darkBorder text-[11px] font-semibold text-[#14532D] dark:text-[#34D399]">
+            m³ vs Cost
+          </span>
+        </div>
+        <div class="relative w-full h-64 sm:h-72">
+          <canvas id="chart-water-cost"></canvas>
+        </div>
+      </div>
+
+      <!-- Graph 3: 12-Month Climate Stress & Soil Moisture Resilience Profile -->
+      <div class="lg:col-span-12 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl p-5 sm:p-6 shadow-card dark:shadow-darkCard">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div>
+            <h3 data-i18n="g3_title" class="text-lg sm:text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">
+              12-Month Climate Stress & Soil Moisture Resilience Profile
+            </h3>
+            <p data-i18n="g3_sub" class="text-xs text-[#4B6356] dark:text-[#94B8A6]">
+              Monthly evapotranspiration heat stress index vs. cover-crop moisture retention across the annual cycle
+            </p>
+          </div>
+          <div class="flex items-center gap-3 text-[11px]">
+            <span class="inline-flex items-center gap-1.5 text-[#D97706] dark:text-amber-400 font-semibold">
+              <span class="w-2.5 h-2.5 rounded-xs bg-[#D97706] dark:bg-amber-400"></span>
+              <span data-i18n="g3_leg1">Peak Evapotranspiration Stress</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[#14532D] dark:text-[#34D399] font-semibold">
+              <span class="w-2.5 h-2.5 rounded-xs bg-[#10B981]"></span>
+              <span data-i18n="g3_leg2">Cover-Stabilized Moisture</span>
+            </span>
+          </div>
+        </div>
+        <div class="relative w-full h-64 sm:h-72">
+          <canvas id="chart-seasonal-stress"></canvas>
+        </div>
+      </div>
+
+      <!-- Graph 4: Seasonal Crop Timeline & Climate Risk Windows (Bare field, Planting window, Heat stress, Frost risk) -->
+      <div class="lg:col-span-12 bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl p-5 sm:p-6 shadow-card dark:shadow-darkCard">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 data-i18n="g4_title" class="text-lg sm:text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">
+              Seasonal Crop Timeline & Climate Risk Windows
+            </h3>
+            <p data-i18n="g4_sub" class="text-xs text-[#4B6356] dark:text-[#94B8A6]">
+              12-month phenological window tracking bare field exposure, optimal planting, peak heat stress, and frost risk
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-[11px]">
+            <span class="inline-flex items-center gap-1.5 text-[#7C5E3C] dark:text-amber-200 font-semibold">
+              <span class="w-3 h-2.5 rounded-full bg-[#F8E5CC] border border-[#E5C9A3]"></span>
+              <span data-i18n="g4_l1">Bare field</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[#166534] dark:text-emerald-300 font-semibold">
+              <span class="w-3 h-2.5 rounded-full bg-[#82D17A]"></span>
+              <span data-i18n="g4_l2">Planting window</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[#B45309] dark:text-orange-300 font-semibold">
+              <span class="w-3 h-2.5 rounded-full bg-[#F8AD55]"></span>
+              <span data-i18n="g4_l3">Heat stress</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[#0369A1] dark:text-sky-300 font-semibold">
+              <span class="w-3 h-2.5 rounded-full bg-[#A2D2EE]"></span>
+              <span data-i18n="g4_l4">Frost risk</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Horizontal Scroll Wrapper for Mobile + Clean 12-Month Gantt Grid -->
+        <div class="w-full overflow-x-auto eco-scroll pb-1">
+          <div id="crop-timeline-gantt" class="min-w-[680px] select-none">
+            <!-- Populated dynamically by renderCropTimelineChart() -->
+          </div>
+        </div>
+
+        <!-- Interactive Status Bar for Selected / Hovered Window -->
+        <div id="timeline-hover-readout" class="mt-3 px-3.5 py-2 rounded-xl bg-lightCanvas dark:bg-darkInset border border-lightBorder dark:border-darkBorder text-xs text-[#4B6356] dark:text-[#94B8A6] flex flex-wrap items-center justify-between gap-2">
+          <span>Hover or tap any colored bar above to inspect seasonal window timing & agronomic recommendations.</span>
+          <span id="timeline-active-crop-badge" class="font-bold text-[#14532D] dark:text-[#34D399]">Wheat • Annual Cycle</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Chat Assistant Section -->
+    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl shadow-card dark:shadow-darkCard overflow-hidden mb-8">
+      <!-- Chat Header -->
+      <div class="px-5 sm:px-6 py-4 border-b border-lightBorder dark:border-darkBorder bg-lightCanvas dark:bg-darkInset flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#14532D] dark:bg-[#10B981] flex items-center justify-center">
+            <svg class="w-5 h-5 text-white dark:text-[#06281E]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-[#14532D] dark:text-[#ECFDF5]">Ask EcoRotate AI</h3>
+            <p class="text-xs text-[#4B6356] dark:text-[#94B8A6]">Get instant explanations about your crop rotation results</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Messages Area -->
+      <div id="chat-messages" class="min-h-[200px] max-h-[400px] overflow-y-auto eco-scroll p-4 sm:p-5 space-y-3">
+        <!-- Welcome message -->
+        <div class="flex gap-2.5">
+          <div class="w-7 h-7 rounded-full bg-[#14532D] dark:bg-[#10B981] flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-3.5 h-3.5 text-white dark:text-[#06281E]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <div class="bg-lightCanvas dark:bg-darkInset rounded-2xl rounded-tl-md px-3.5 py-2.5 max-w-[85%]">
+            <p class="text-xs text-[#132A1E] dark:text-[#ECFDF5] leading-relaxed">👋 Hi! I can explain your results — ask me about crop scores, water use, costs, climate resilience, or anything else in your analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="p-4 sm:p-5 border-t border-lightBorder dark:border-darkBorder bg-lightCanvas/50 dark:bg-darkInset/50">
+        <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex items-center gap-2.5">
+          <input id="chat-input" type="text" placeholder="Ask about your results..." autocomplete="off"
+            class="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder focus:border-[#14532D] dark:focus:border-[#34D399] text-sm font-medium text-[#132A1E] dark:text-[#ECFDF5] placeholder-[#4B6356]/70 dark:placeholder-[#94B8A6]/70 outline-none transition-colors" />
+          <button type="submit" id="chat-send-btn"
+            class="w-11 h-11 rounded-xl bg-[#14532D] hover:bg-[#166534] dark:bg-[#10B981] dark:hover:bg-[#34D399] text-white dark:text-[#06281E] flex items-center justify-center transition-all cursor-pointer shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l-5 5m5-5l5 5" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bottom Dedicated Export & Download Report Card -->
+    <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-3xl p-5 sm:p-6 shadow-card dark:shadow-darkCard flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-center sm:text-left">
+        <h3 data-i18n="export_bar_title" class="text-lg sm:text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">
+          Export Field Economics & Rotation Calendar
+        </h3>
+        <p data-i18n="export_bar_sub" class="text-xs sm:text-sm text-[#4B6356] dark:text-[#94B8A6] mt-0.5">
+          Download full statistics, strategy comparisons, and a 12-month rotation calendar in your selected language
+        </p>
+      </div>
+
+      <div id="download-report-wrapper" class="relative w-full sm:w-auto shrink-0">
+        <button id="btn-download-report" type="button" onclick="toggleDownloadMenu(event)"
+          class="w-full sm:w-auto min-h-[54px] px-7 py-3.5 rounded-2xl bg-[#14532D] hover:bg-[#166534] dark:bg-[#10B981] dark:hover:bg-[#34D399] text-white dark:text-[#06281E] text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 shadow-lg shadow-[#14532D]/20 dark:shadow-[#10B981]/15 transition-all cursor-pointer">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" />
+          </svg>
+          <span data-i18n="btn_download_report">Download Report</span>
+          <svg class="w-4 h-4 opacity-85 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+
+        <div id="download-report-menu" class="hidden absolute right-0 bottom-full mb-2.5 w-full sm:w-64 bg-white dark:bg-[#121F19] border border-lightBorder dark:border-darkBorder rounded-2xl shadow-2xl p-2 z-[600] space-y-1.5">
+          <button type="button" onclick="exportReport('word')"
+            class="w-full min-h-[44px] text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#132A1E] dark:text-[#ECFDF5] hover:bg-lightCanvas dark:hover:bg-darkInset flex items-center justify-between gap-2 transition-colors cursor-pointer">
+            <span data-i18n="dl_word">Word Document</span>
+            <span class="px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[10px] font-bold">.DOC</span>
+          </button>
+          <button type="button" onclick="exportReport('pdf')"
+            class="w-full min-h-[44px] text-left px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#132A1E] dark:text-[#ECFDF5] hover:bg-lightCanvas dark:hover:bg-darkInset flex items-center justify-between gap-2 transition-colors cursor-pointer">
+            <span data-i18n="dl_pdf">PDF Report</span>
+            <span class="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 text-[10px] font-bold">.PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Non-Blocking Toast Banner -->
+  <div id="toast-notification" class="fixed bottom-5 right-5 z-50 translate-y-24 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#14532D] dark:bg-[#10B981] text-white dark:text-[#06281E] text-xs sm:text-sm font-semibold shadow-xl">
+      <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">✓</span>
+      <span id="toast-message">Report generated successfully</span>
+    </div>
+  </div>
+
+  <!-- Chart.js (4.4.1) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    /* =====================================================================
+       1. APPLICATION STATE & URL / STORAGE HYDRATION
+    ===================================================================== */
+    /* =====================================================================
+       0. API CONFIGURATION
+    ===================================================================== */
+    const API_BASE_URL = 'http://13.48.153.251:8081';
+    let backendResult = null;
+    let apiErrorMessage = null;
+    let currentJobId = null;
+
+    const appState = {
+      darkMode: true,
+      lang: 'en',
+      latitude: 39.8283,
+      longitude: -98.5795,
+      current_crop: 'Wheat',
+      soil_type: 'Loam',
+      irrigation_method: 'Drip',
+      field_size: 25,
+      field_size_unit: 'Acres',
+      cycle_years: 3,
+      currency: 'USD',
+      variable_cost_per_unit: 420,
+      crop_price_per_ton: 260,
+      regionLabel: 'United States (Central Heartland)',
+      telemetry: {
+        tempC: 11.8,
+        moisturePct: 44,
+        moistureLabel: 'Moderate',
+        precipMm: 708,
+        solarKwh: 4.5,
+        elevationM: 583
+      }
+    };
+
+    function hydrateStateFromUrlOrStorage() {
+      try {
+        const saved = localStorage.getItem('ecorotate_state');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          Object.assign(appState, parsed);
+        }
+      } catch (_) {}
+
+      // Load backend result from localStorage fallback
+      try {
+        const savedBackend = localStorage.getItem('ecorotate_backend_result');
+        if (savedBackend) {
+          backendResult = JSON.parse(savedBackend);
+        }
+      } catch (_) {}
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const stateParam = params.get('state');
+        if (stateParam) {
+          const parsedState = JSON.parse(stateParam);
+          if (parsedState && typeof parsedState === 'object') {
+            Object.assign(appState, parsedState);
+          }
+        }
+        if (params.has('crop')) appState.current_crop = params.get('crop');
+        if (params.has('soil')) appState.soil_type = params.get('soil');
+        if (params.has('irrigation')) appState.irrigation_method = params.get('irrigation');
+        if (params.has('size')) appState.field_size = parseFloat(params.get('size')) || appState.field_size;
+        if (params.has('unit')) appState.field_size_unit = params.get('unit');
+        if (params.has('years')) appState.cycle_years = parseInt(params.get('years'), 10) || appState.cycle_years;
+        if (params.has('currency')) appState.currency = params.get('currency');
+        if (params.has('region')) appState.regionLabel = params.get('region');
+        if (params.has('lat')) appState.latitude = parseFloat(params.get('lat')) || appState.latitude;
+        if (params.has('lon')) appState.longitude = parseFloat(params.get('lon')) || appState.longitude;
+        if (params.has('lang')) appState.lang = params.get('lang');
+
+        // Load backend result from URL params (primary source)
+        if (params.has('backendResult')) {
+          try {
+            backendResult = JSON.parse(decodeURIComponent(params.get('backendResult')));
+          } catch (_) {}
+        }
+        if (params.has('apiError')) {
+          apiErrorMessage = decodeURIComponent(params.get('apiError'));
+        }
+        // Load jobId for chat assistant
+        if (params.has('jobId')) {
+          currentJobId = parseInt(params.get('jobId'), 10);
+        }
+      } catch (_) {}
+    }
+
+    const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const CURRENCY_RATES = {
+      USD: { rate: 1, symbol: '$' },
+      AED: { rate: 3.67, symbol: 'AED ' },
+      EUR: { rate: 0.92, symbol: '€' },
+      INR: { rate: 84.0, symbol: '₹' }
+    };
+
+    const AREA_RATES = {
+      Acres: { rate: 1, short: 'ac' },
+      Hectares: { rate: 2.471, short: 'ha' },
+      Dunams: { rate: 0.2471, short: 'du' }
+    };
+
+    const LANGUAGE_CONTINENTS = [
+      {
+        continent: 'North America',
+        badgeBg: 'bg-emerald-500/15',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
+        borderAccent: 'border-emerald-500/30',
+        languages: [{ code: 'en', label: 'English' }]
+      },
+      {
+        continent: 'Asia',
+        badgeBg: 'bg-amber-500/15',
+        badgeText: 'text-amber-700 dark:text-amber-300',
+        borderAccent: 'border-amber-500/30',
+        languages: [
+          { code: 'hi', label: 'हिन्दी (Hindi)' },
+          { code: 'zh', label: '中文 (Mandarin)' },
+          { code: 'ur', label: 'اردو (Urdu)' },
+          { code: 'ms', label: 'Bahasa Indonesia (Malay)' }
+        ]
+      },
+      {
+        continent: 'Middle East',
+        badgeBg: 'bg-sky-500/15',
+        badgeText: 'text-sky-700 dark:text-sky-300',
+        borderAccent: 'border-sky-500/30',
+        languages: [{ code: 'ar', label: 'العربية (Arabic)' }]
+      },
+      {
+        continent: 'Europe',
+        badgeBg: 'bg-violet-500/15',
+        badgeText: 'text-violet-700 dark:text-violet-300',
+        borderAccent: 'border-violet-500/30',
+        languages: [
+          { code: 'ru', label: 'Русский (Russian)' },
+          { code: 'fr', label: 'Français (French)' },
+          { code: 'es', label: 'Español (Spanish)' },
+          { code: 'pt', label: 'Português (Portuguese)' }
+        ]
+      },
+      {
+        continent: 'Africa',
+        badgeBg: 'bg-rose-500/15',
+        badgeText: 'text-rose-700 dark:text-rose-300',
+        borderAccent: 'border-rose-500/30',
+        languages: [
+          { code: 'am', label: 'አማርኛ (Amharic)' },
+          { code: 'luo', label: 'Dholuo (Nilo-Saharan)' },
+          { code: 'zu', label: 'isiZulu (Zulu)' },
+          { code: 'sw', label: 'Kiswahili (Swahili)' }
+        ]
+      }
+    ];
+
+    const I18N_DICTIONARY = {
+      en: {
+        dir: 'ltr', light_mode: 'Light Mode', dark_mode: 'Dark Mode',
+        btn_back_planner: '← Back to Planner',
+        analytics_kicker: 'ECOROTATE DECISION-SUPPORT ANALYTICS',
+        analytics_title: 'Rotation Strategies & Climate Profit Outlook',
+        lbl_temp_shock: '🌡️ Temp Anomaly', lbl_rain_shock: '🌧️ Rainfall Anomaly',
+        lbl_crop: 'Current Crop', lbl_soil: 'Soil Type', lbl_irrigation: 'Irrigation Method',
+        lbl_size: 'Field Size', lbl_varcost: 'Var Cost', lbl_price: 'Price/ton',
+        tel_temp_lbl: 'Surface Temp (T2M)', tel_moist_lbl: 'Topsoil Moisture',
+        tel_rain_lbl: 'Annual Rainfall', tel_solar_lbl: 'Solar Irradiance', tel_elev_lbl: 'Grid Elevation',
+        g1_title: 'Cumulative Net Profit Trajectory', g1_sub: 'Season-over-season net operating return across all 3 pathways',
+        g2_title: 'Annual Water Demand & Input Cost', g2_sub: 'Irrigation volume (m³/yr) vs. annual variable expense',
+        g3_title: '12-Month Climate Stress & Soil Moisture Resilience Profile',
+        g3_sub: 'Monthly evapotranspiration heat stress index vs. cover-crop moisture retention across the annual cycle',
+        g3_leg1: 'Peak Evapotranspiration Stress', g3_leg2: 'Cover-Stabilized Moisture',
+        g4_title: 'Seasonal Crop Timeline & Climate Risk Windows',
+        g4_sub: '12-month phenological window tracking bare field exposure, optimal planting, peak heat stress, and frost risk',
+        g4_l1: 'Bare field', g4_l2: 'Planting window', g4_l3: 'Heat stress', g4_l4: 'Frost risk',
+        export_bar_title: 'Export Field Economics & Rotation Calendar',
+        export_bar_sub: 'Download full statistics, strategy comparisons, and a 12-month rotation calendar in your selected language',
+        btn_download_report: 'Download Report', dl_word: 'Word Document', dl_pdf: 'PDF Report',
+        crops: { Wheat: 'Wheat', Corn: 'Corn', Barley: 'Barley', Rice: 'Rice', Alfalfa: 'Alfalfa', Tomatoes: 'Tomatoes', Potatoes: 'Potatoes', Cotton: 'Cotton', Sorghum: 'Sorghum', Millet: 'Millet', Soybeans: 'Soybeans', Chickpeas: 'Chickpeas' },
+        soils: { Loam: 'Loam', Sandy: 'Sandy', Clay: 'Clay', Silt: 'Silt', Peaty: 'Peaty', Chalky: 'Chalky' },
+        units: { Acres: 'Acres', Hectares: 'Hectares', Dunams: 'Dunams' }
+      },
+      es: {
+        dir: 'ltr', light_mode: 'Modo Claro', dark_mode: 'Modo Oscuro',
+        btn_back_planner: '← Volver al Planificador',
+        analytics_kicker: 'ANALÍTICA DE DECISIÓN ECOROTATE',
+        analytics_title: 'Estrategias de Rotación y Perspectiva Económica',
+        lbl_temp_shock: '🌡️ Anomalía Térmica', lbl_rain_shock: '🌧️ Anomalía Lluvia',
+        lbl_crop: 'Cultivo Actual', lbl_soil: 'Tipo de Suelo', lbl_irrigation: 'Método de Riego',
+        lbl_size: 'Tamaño', lbl_varcost: 'Costo Var.', lbl_price: 'Precio/ton',
+        tel_temp_lbl: 'Temp. Superficial', tel_moist_lbl: 'Humedad del Suelo',
+        tel_rain_lbl: 'Lluvia Anual', tel_solar_lbl: 'Irradiancia Solar', tel_elev_lbl: 'Elevación',
+        g1_title: 'Trayectoria de Beneficio Neto Acumulado', g1_sub: 'Retorno operativo neto temporada tras temporada',
+        g2_title: 'Demanda Anual de Agua y Costos', g2_sub: 'Volumen de riego (m³/año) vs gasto variable anual',
+        g3_title: 'Perfil de Estrés Climático y Humedad del Suelo (12 Meses)',
+        g3_sub: 'Índice mensual de evapotranspiración vs retención de humedad con cobertura',
+        g3_leg1: 'Estrés Máximo de Evapotranspiración', g3_leg2: 'Humedad Estabilizada',
+        g4_title: 'Cronograma Estacional y Ventanas de Riesgo Climático',
+        g4_sub: 'Ciclo fenológico de 12 meses: suelo descubierto, ventana de siembra, estrés por calor y riesgo de heladas',
+        g4_l1: 'Suelo descubierto', g4_l2: 'Ventana de siembra', g4_l3: 'Estrés por calor', g4_l4: 'Riesgo de heladas',
+        export_bar_title: 'Exportar Economía del Campo y Calendario',
+        export_bar_sub: 'Descarga estadísticas completas, comparativas y calendario de 12 meses en tu idioma',
+        btn_download_report: 'Descargar Informe', dl_word: 'Documento Word', dl_pdf: 'Informe PDF',
+        crops: { Wheat: 'Trigo', Corn: 'Maíz', Barley: 'Cebada', Rice: 'Arroz', Alfalfa: 'Alfalfa', Tomatoes: 'Tomates', Potatoes: 'Papas', Cotton: 'Algodón', Sorghum: 'Sorgo', Millet: 'Mijo', Soybeans: 'Soja', Chickpeas: 'Garbanzos' },
+        soils: { Loam: 'Franco', Sandy: 'Arenoso', Clay: 'Arcilloso', Silt: 'Limoso', Peaty: 'Turboso', Chalky: 'Calcáreo' },
+        units: { Acres: 'Acres', Hectares: 'Hectáreas', Dunams: 'Dunams' }
+      },
+      fr: {
+        dir: 'ltr', light_mode: 'Mode Clair', dark_mode: 'Mode Sombre',
+        btn_back_planner: '← Retour au Planificateur',
+        analytics_kicker: 'ANALYTIQUE DÉCISIONNELLE ECOROTATE',
+        analytics_title: 'Stratégies de Rotation & Perspectives Climatiques',
+        lbl_temp_shock: '🌡️ Anomalie Temp.', lbl_rain_shock: '🌧️ Anomalie Pluie',
+        lbl_crop: 'Culture Actuelle', lbl_soil: 'Type de Sol', lbl_irrigation: 'Méthode d’Irrigation',
+        lbl_size: 'Surface', lbl_varcost: 'Coût Var.', lbl_price: 'Prix/tonne',
+        tel_temp_lbl: 'Temp. Surface', tel_moist_lbl: 'Humidité du Sol',
+        tel_rain_lbl: 'Précipitations', tel_solar_lbl: 'Irradiance Solaire', tel_elev_lbl: 'Altitude',
+        g1_title: 'Trajectoire du Bénéfice Net Cumulé', g1_sub: 'Rendement opérationnel net saison par saison',
+        g2_title: 'Demande Annuelle en Eau & Coûts', g2_sub: 'Volume d’irrigation (m³/an) vs dépenses annuelles',
+        g3_title: 'Profil de Stress Climatique & Résilience Hydrique (12 Mois)',
+        g3_sub: 'Indice d’évapotranspiration mensuel vs rétention d’eau par couvert végétal',
+        g3_leg1: 'Stress d’Évapotranspiration', g3_leg2: 'Humidité Stabilisée',
+        g4_title: 'Calendrier Phénologique & Fenêtres de Risque Climatique',
+        g4_sub: 'Suivi annuel sur 12 mois : sol nu, fenêtre de semis, stress thermique et risque de gel',
+        g4_l1: 'Sol nu', g4_l2: 'Fenêtre de semis', g4_l3: 'Stress thermique', g4_l4: 'Risque de gel',
+        export_bar_title: 'Exporter l’Économie du Champ & le Calendrier',
+        export_bar_sub: 'Téléchargez les statistiques complètes, les stratégies et le calendrier sur 12 mois dans votre langue',
+        btn_download_report: 'Télécharger le Rapport', dl_word: 'Document Word', dl_pdf: 'Rapport PDF',
+        crops: { Wheat: 'Blé', Corn: 'Maïs', Barley: 'Orge', Rice: 'Riz', Alfalfa: 'Luzerne', Tomatoes: 'Tomates', Potatoes: 'Pommes de terre', Cotton: 'Coton', Sorghum: 'Sorgho', Millet: 'Millet', Soybeans: 'Soja', Chickpeas: 'Pois chiches' },
+        soils: { Loam: 'Limoneux', Sandy: 'Sableux', Clay: 'Argileux', Silt: 'Silteux', Peaty: 'Tourbeux', Chalky: 'Calcaire' },
+        units: { Acres: 'Acres', Hectares: 'Hectares', Dunams: 'Dounams' }
+      },
+      ar: {
+        dir: 'rtl', light_mode: 'الوضع النهاري', dark_mode: 'الوضع الليلي',
+        btn_back_planner: 'العودة إلى المخطط →',
+        analytics_kicker: 'تحليلات دعم القرار الزراعي ECOROTATE',
+        analytics_title: 'استراتيجيات الدورة الزراعية وتوقعات الربح المناخي',
+        lbl_temp_shock: '🌡️ شذوذ الحرارة', lbl_rain_shock: '🌧️ شذوذ الأمطار',
+        lbl_crop: 'المحصول الحالي', lbl_soil: 'نوع التربة', lbl_irrigation: 'طريقة الري',
+        lbl_size: 'المساحة', lbl_varcost: 'التكلفة المتغيرة', lbl_price: 'السعر/طن',
+        tel_temp_lbl: 'حرارة السطح', tel_moist_lbl: 'رطوبة التربة',
+        tel_rain_lbl: 'الأمطار السنوية', tel_solar_lbl: 'الإشعاع الشمسي', tel_elev_lbl: 'الارتفاع',
+        g1_title: 'مسار صافي الربح التراكمي', g1_sub: 'العائد التشغيلي الصافي موسماً بعد موسم للمسارات الثلاثة',
+        g2_title: 'الطلب المائي السنوي وتكلفة المدخلات', g2_sub: 'حجم الري (م³/سنة) مقابل النفقات السنوية',
+        g3_title: 'مؤشر الإجهاد المناخي ورطوبة التربة على مدار 12 شهراً',
+        g3_sub: 'مؤشر التبخر الحراري الشهري مقابل احتفاظ المحاصيل الغطائية بالرطوبة',
+        g3_leg1: 'ذروة إجهاد التبخر', g3_leg2: 'رطوبة مستقرة بالغطاء النباتي',
+        g4_title: 'الجدول الزمني للمحصول ونوافذ المخاطر المناخية',
+        g4_sub: 'دورة 12 شهراً تتبع فترة الأرض المكشوفة ونافذة الزراعة والإجهاد الحراري ومخاطر الصقيع',
+        g4_l1: 'أرض مكشوفة', g4_l2: 'نافذة الزراعة', g4_l3: 'إجهاد حراري', g4_l4: 'مخاطر الصقيع',
+        export_bar_title: 'تصدير اقتصاديات الحقل وتقويم الدورة الزراعية',
+        export_bar_sub: 'حمّل الإحصاءات الكاملة ومقارنة الاستراتيجيات وتقويم 12 شهراً بلغتك المختارة',
+        btn_download_report: 'تحميل التقرير', dl_word: 'مستند وورد', dl_pdf: 'تقرير PDF',
+        crops: { Wheat: 'قمح', Corn: 'ذرة', Barley: 'شعير', Rice: 'أرز', Alfalfa: 'برسيم حجازي', Tomatoes: 'طماطم', Potatoes: 'بطاطس', Cotton: 'قطن', Sorghum: 'ذرة رفيعة', Millet: 'دخن', Soybeans: 'فول الصويا', Chickpeas: 'حمص' },
+        soils: { Loam: 'طميية', Sandy: 'رملية', Clay: 'طينية', Silt: 'غرينية', Peaty: 'خثية', Chalky: 'كلسية' },
+        units: { Acres: 'فدان', Hectares: 'هكتار', Dunams: 'دونم' }
+      },
+      hi: {
+        dir: 'ltr', light_mode: 'लाइट मोड', dark_mode: 'डार्क मोड',
+        btn_back_planner: '← प्लानर पर वापस जाएं',
+        analytics_kicker: 'इको-रोटेट निर्णय-समर्थन विश्लेषण',
+        analytics_title: 'फसल चक्र रणनीतियाँ और जलवायु लाभ दृष्टिकोण',
+        lbl_temp_shock: '🌡️ तापमान विचलन', lbl_rain_shock: '🌧️ वर्षा विचलन',
+        lbl_crop: 'वर्तमान फसल', lbl_soil: 'मिट्टी का प्रकार', lbl_irrigation: 'सिंचाई विधि',
+        lbl_size: 'आकार', lbl_varcost: 'परिवर्ती लागत', lbl_price: 'मूल्य/टन',
+        tel_temp_lbl: 'सतह तापमान', tel_moist_lbl: 'मिट्टी की नमी',
+        tel_rain_lbl: 'वार्षिक वर्षा', tel_solar_lbl: 'सौर विकिरण', tel_elev_lbl: 'ऊंचाई',
+        g1_title: 'संचयी शुद्ध लाभ प्रक्षेपवक्र', g1_sub: 'तीनों रणनीतियों में मौसम-दर-मौसम शुद्ध परिचालन लाभ',
+        g2_title: 'वार्षिक जल मांग और इनपुट लागत', g2_sub: 'सिंचाई मात्रा (m³/वर्ष) बनाम वार्षिक खर्च',
+        g3_title: '12-माह जलवायु तनाव और मिट्टी की नमी लचीलापन',
+        g3_sub: 'वार्षिक चक्र में वाष्पीकरण तनाव बनाम कवर-फसल नमी संरक्षण',
+        g3_leg1: 'चरम वाष्पीकरण तनाव', g3_leg2: 'कवर-स्थिर नमी',
+        g4_title: 'मौसमी फसल समयरेखा और जलवायु जोखिम खिड़कियां',
+        g4_sub: '12-माह का चक्र: खाली खेत, बुवाई का समय, गर्मी का दबाव और पाले का जोखिम',
+        g4_l1: 'खाली खेत', g4_l2: 'बुवाई का समय', g4_l3: 'गर्मी का दबाव', g4_l4: 'पाले का जोखिम',
+        export_bar_title: 'खेत अर्थशास्त्र और फसल चक्र कैलेंडर निर्यात करें',
+        export_bar_sub: 'अपनी चुनी हुई भाषा में पूर्ण आंकड़े, रणनीति तुलना और 12-माह का कैलेंडर डाउनलोड करें',
+        btn_download_report: 'रिपोर्ट डाउनलोड करें', dl_word: 'वर्ड दस्तावेज़', dl_pdf: 'पीडीएफ रिपोर्ट',
+        crops: { Wheat: 'गेहूं', Corn: 'मक्का', Barley: 'जौ', Rice: 'धान', Alfalfa: 'रिजका', Tomatoes: 'टमाटर', Potatoes: 'आलू', Cotton: 'कपास', Sorghum: 'ज्वार', Millet: 'बाजरा', Soybeans: 'सोयाबीन', Chickpeas: 'चना' },
+        soils: { Loam: 'दोमट', Sandy: 'रेतीली', Clay: 'चिकनी', Silt: 'गाद', Peaty: 'पीटयुक्त', Chalky: 'चूनायुक्त' },
+        units: { Acres: 'एकड़', Hectares: 'हेक्टेयर', Dunams: 'डुनम' }
+      }
+    };
+
+    function t(key) {
+      const dict = I18N_DICTIONARY[appState.lang] || I18N_DICTIONARY.en;
+      return dict[key] || I18N_DICTIONARY.en[key] || key;
+    }
+
+    function getLocalizedCropLabel(cropKey) {
+      const pack = I18N_DICTIONARY[appState.lang] || I18N_DICTIONARY.en;
+      return (pack.crops && pack.crops[cropKey]) || cropKey;
+    }
+
+    const CROP_BENCHMARKS = {
+      Wheat:     { varCostUSD: 420,  priceUSD: 260,  yieldTonPerAcre: 3.2,  waterM3PerAcre: 1850, family: 'Poaceae (Cereal)',  soilCompanion: 'Chickpeas', waterCompanion: 'Sorghum',   plantStart: 2, plantEnd: 5, heatStart: 6, heatEnd: 7, frostStart: 8, frostEnd: 11 },
+      Corn:      { varCostUSD: 580,  priceUSD: 215,  yieldTonPerAcre: 6.8,  waterM3PerAcre: 2450, family: 'Poaceae (Cereal)',  soilCompanion: 'Soybeans',  waterCompanion: 'Millet',    plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 9, frostEnd: 11 },
+      Barley:    { varCostUSD: 360,  priceUSD: 230,  yieldTonPerAcre: 2.9,  waterM3PerAcre: 1520, family: 'Poaceae (Cereal)',  soilCompanion: 'Alfalfa',   waterCompanion: 'Millet',    plantStart: 2, plantEnd: 4, heatStart: 6, heatEnd: 7, frostStart: 9, frostEnd: 11 },
+      Rice:      { varCostUSD: 690,  priceUSD: 440,  yieldTonPerAcre: 4.5,  waterM3PerAcre: 4200, family: 'Poaceae (Cereal)',  soilCompanion: 'Chickpeas', waterCompanion: 'Sorghum',   plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 9, frostEnd: 11 },
+      Alfalfa:   { varCostUSD: 390,  priceUSD: 240,  yieldTonPerAcre: 5.2,  waterM3PerAcre: 2300, family: 'Fabaceae (Legume)', soilCompanion: 'Barley',    waterCompanion: 'Sorghum',   plantStart: 2, plantEnd: 5, heatStart: 6, heatEnd: 7, frostStart: 9, frostEnd: 11 },
+      Tomatoes:  { varCostUSD: 1450, priceUSD: 620,  yieldTonPerAcre: 18.0, waterM3PerAcre: 2650, family: 'Solanaceae',        soilCompanion: 'Soybeans',  waterCompanion: 'Chickpeas', plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 8, frostEnd: 11 },
+      Potatoes:  { varCostUSD: 1280, priceUSD: 380,  yieldTonPerAcre: 14.5, waterM3PerAcre: 2150, family: 'Solanaceae',        soilCompanion: 'Alfalfa',   waterCompanion: 'Barley',    plantStart: 2, plantEnd: 4, heatStart: 6, heatEnd: 7, frostStart: 8, frostEnd: 11 },
+      Cotton:    { varCostUSD: 640,  priceUSD: 1650, yieldTonPerAcre: 1.4,  waterM3PerAcre: 2700, family: 'Malvaceae',         soilCompanion: 'Chickpeas', waterCompanion: 'Sorghum',   plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 9, frostEnd: 11 },
+      Sorghum:   { varCostUSD: 310,  priceUSD: 225,  yieldTonPerAcre: 3.4,  waterM3PerAcre: 1120, family: 'Poaceae (Cereal)',  soilCompanion: 'Chickpeas', waterCompanion: 'Millet',    plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 9, frostEnd: 11 },
+      Millet:    { varCostUSD: 275,  priceUSD: 250,  yieldTonPerAcre: 2.4,  waterM3PerAcre: 940,  family: 'Poaceae (Cereal)',  soilCompanion: 'Soybeans',  waterCompanion: 'Sorghum',   plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 9, frostEnd: 11 },
+      Soybeans:  { varCostUSD: 410,  priceUSD: 460,  yieldTonPerAcre: 2.3,  waterM3PerAcre: 1620, family: 'Fabaceae (Legume)', soilCompanion: 'Wheat',     waterCompanion: 'Sorghum',   plantStart: 3, plantEnd: 5, heatStart: 6, heatEnd: 8, frostStart: 8, frostEnd: 11 },
+      Chickpeas: { varCostUSD: 340,  priceUSD: 740,  yieldTonPerAcre: 1.5,  waterM3PerAcre: 1180, family: 'Fabaceae (Legume)', soilCompanion: 'Wheat',     waterCompanion: 'Millet',    plantStart: 2, plantEnd: 4, heatStart: 6, heatEnd: 7, frostStart: 8, frostEnd: 11 }
+    };
+
+    /* =====================================================================
+       2. LANGUAGE MENU & THEME TOGGLE
+    ===================================================================== */
+    function renderLanguageMenu() {
+      const panel = document.getElementById('lang-dropdown-panel');
+      if (!panel) return;
+      panel.innerHTML = LANGUAGE_CONTINENTS.map(group => `
+        <div class="rounded-xl border ${group.borderAccent} overflow-hidden">
+          <div class="px-3 py-1.5 ${group.badgeBg} ${group.badgeText} text-[10px] font-bold uppercase tracking-wider">
+            <span>${group.continent}</span>
+          </div>
+          <div class="p-1 space-y-0.5 bg-white dark:bg-[#121F19]">
+            ${group.languages.map(lang => {
+              const isSelected = appState.lang === lang.code;
+              return `
+                <button type="button" onclick="setLanguage('${lang.code}')"
+                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#14532D] dark:bg-[#10B981] text-white dark:text-[#06281E]'
+                      : 'text-[#132A1E] dark:text-[#ECFDF5] hover:bg-lightCanvas dark:hover:bg-darkInset'
+                  }">
+                  <span>${lang.label}</span>
+                  ${isSelected ? '<span class="text-xs font-bold">✓</span>' : ''}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function initLanguageDropdownListeners() {
+      const trigger = document.getElementById('btn-lang-trigger');
+      const panel = document.getElementById('lang-dropdown-panel');
+      const wrapper = document.getElementById('lang-dropdown-wrapper');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    function setLanguage(langCode) {
+      appState.lang = I18N_DICTIONARY[langCode] ? langCode : 'en';
+      const dict = I18N_DICTIONARY[appState.lang];
+
+      let activeLabel = 'English';
+      LANGUAGE_CONTINENTS.forEach(g => {
+        const found = g.languages.find(l => l.code === appState.lang);
+        if (found) activeLabel = found.label;
+      });
+      document.getElementById('current-lang-display').textContent = activeLabel;
+      document.getElementById('lang-dropdown-panel').classList.add('hidden');
+      renderLanguageMenu();
+
+      document.documentElement.setAttribute('dir', dict.dir || 'ltr');
+      document.documentElement.setAttribute('lang', appState.lang);
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      document.getElementById('theme-toggle-label').textContent = appState.darkMode ? dict.light_mode : dict.dark_mode;
+      renderResultsAndCharts();
+    }
+
+    function toggleTheme() {
+      appState.darkMode = !appState.darkMode;
+      const htmlEl = document.documentElement;
+      const sunIcon = document.getElementById('icon-sun');
+      const moonIcon = document.getElementById('icon-moon');
+      const label = document.getElementById('theme-toggle-label');
+
+      if (appState.darkMode) {
+        htmlEl.classList.add('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+        label.textContent = t('light_mode');
+      } else {
+        htmlEl.classList.remove('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        label.textContent = t('dark_mode');
+      }
+
+      renderResultsAndCharts();
+    }
+
+    function toggleDownloadMenu(event) {
+      if (event) event.stopPropagation();
+      const menu = document.getElementById('download-report-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    /* =====================================================================
+       3. SEASONAL CROP TIMELINE & CLIMATE RISK WINDOWS GRAPH (JAN–DEC)
+    ===================================================================== */
+    function computeSeasonalTimelineWindows(tempShock, rainShockPct) {
+      const bench = CROP_BENCHMARKS[appState.current_crop] || CROP_BENCHMARKS.Wheat;
+      const isSouthern = appState.latitude < 0;
+
+      // Base month indices (0 = Jan ... 11 = Dec)
+      let bareStart = 0, bareEnd = 11;
+      let plantStart = bench.plantStart ?? 2; // Mar
+      let plantEnd = bench.plantEnd ?? 5;     // Jun
+      let heatStart = bench.heatStart ?? 6;   // Jul
+      let heatEnd = bench.heatEnd ?? 7;       // Aug
+      let frostStart = bench.frostStart ?? 8; // Sep
+      let frostEnd = bench.frostEnd ?? 11;    // Dec
+
+      // Dynamic climate stress adjustments when user drags Temp or Rain Anomaly sliders
+      if (tempShock >= 1.5 || rainShockPct >= 25) {
+        heatStart = Math.max(4, heatStart - 1);
+        heatEnd = Math.min(9, heatEnd + 1);
+        frostStart = Math.min(10, frostStart + 1);
+      }
+      if (rainShockPct >= 30) {
+        plantEnd = Math.max(plantStart + 1, plantEnd - 1);
+      }
+
+      if (isSouthern) {
+        plantStart = (plantStart + 6) % 12;
+        plantEnd = Math.min(11, plantStart + 3);
+        heatStart = 0;
+        heatEnd = 2;
+        frostStart = 5;
+        frostEnd = 8;
+      }
+
+      const cropDisp = getLocalizedCropLabel(appState.current_crop);
+
+      return [
+        {
+          id: 'bare',
+          label: t('g4_l1'),
+          startIdx: bareStart,
+          endIdx: bareEnd,
+          pillBg: appState.darkMode ? 'rgba(248, 229, 204, 0.28)' : '#F8E5CC',
+          pillBorder: appState.darkMode ? '1px solid rgba(253, 230, 138, 0.45)' : '1px solid #EDD5B4',
+          exportColor: '#F8E5CC',
+          detail: `${t('g4_l1')} (${ALL_MONTHS[bareStart]}–${ALL_MONTHS[bareEnd]}): Full annual field exposure cycle; winter/off-season cover crops prevent topsoil erosion.`
+        },
+        {
+          id: 'planting',
+          label: t('g4_l2'),
+          startIdx: plantStart,
+          endIdx: plantEnd,
+          pillBg: appState.darkMode ? '#4ADE80' : '#82D17A',
+          pillBorder: 'none',
+          exportColor: '#82D17A',
+          detail: `${t('g4_l2')} (${ALL_MONTHS[plantStart]}–${ALL_MONTHS[plantEnd]}): Optimal soil temperature and moisture window for seeding ${cropDisp}.`
+        },
+        {
+          id: 'heat',
+          label: t('g4_l3'),
+          startIdx: heatStart,
+          endIdx: heatEnd,
+          pillBg: appState.darkMode ? '#FB923C' : '#F8AD55',
+          pillBorder: 'none',
+          exportColor: '#F8AD55',
+          detail: `${t('g4_l3')} (${ALL_MONTHS[heatStart]}–${ALL_MONTHS[heatEnd]}): Elevated evapotranspiration demand (+${tempShock.toFixed(1)}°C anomaly); prioritize mulch & ${appState.irrigation_method} scheduling.`
+        },
+        {
+          id: 'frost',
+          label: t('g4_l4'),
+          startIdx: frostStart,
+          endIdx: frostEnd,
+          pillBg: appState.darkMode ? '#60A5FA' : '#A2D2EE',
+          pillBorder: 'none',
+          exportColor: '#A2D2EE',
+          detail: `${t('g4_l4')} (${ALL_MONTHS[frostStart]}–${ALL_MONTHS[frostEnd]}): Cooling overnight temperatures; complete main harvest before peak frost onset and establish hardy cover.`
+        }
+      ];
+    }
+
+    function renderCropTimelineChart(timelineRows) {
+      const container = document.getElementById('crop-timeline-gantt');
+      if (!container) return;
+
+      const cropDisp = getLocalizedCropLabel(appState.current_crop);
+      const badgeEl = document.getElementById('timeline-active-crop-badge');
+      if (badgeEl) badgeEl.textContent = `${cropDisp} • ${ALL_MONTHS[0]}–${ALL_MONTHS[11]}`;
+
+      const headerCols = ALL_MONTHS.map(m => `
+        <div class="text-center text-xs sm:text-[13px] font-semibold text-[#4B6356] dark:text-[#94B8A6] py-2">
+          ${m}
+        </div>
+      `).join('');
+
+      const rowsHtml = timelineRows.map((row, rIdx) => {
+        const leftPct = (row.startIdx / 12) * 100;
+        const widthPct = ((row.endIdx - row.startIdx + 1) / 12) * 100;
+        const insetLeft = `calc(${leftPct}% + 6px)`;
+        const insetWidth = `calc(${widthPct}% - 12px)`;
+        const isLast = rIdx === timelineRows.length - 1;
+
+        const gridCells = ALL_MONTHS.map((_, cIdx) => `
+          <div class="h-11 ${cIdx < 11 ? 'border-r border-[#E6ECE8] dark:border-darkBorder' : ''}"></div>
+        `).join('');
+
+        return `
+          <div class="grid grid-cols-[150px_1fr] sm:grid-cols-[175px_1fr] items-center">
+            <div class="px-4 text-xs sm:text-sm ${rIdx === 0 ? 'font-bold text-[#132A1E] dark:text-[#ECFDF5]' : 'font-semibold text-[#2A3F33] dark:text-[#D1FAE5]'} truncate">
+              ${row.label}
+            </div>
+            <div class="relative border-l border-[#E6ECE8] dark:border-darkBorder ${!isLast ? 'border-b border-[#E6ECE8] dark:border-darkBorder' : ''}">
+              <div class="grid grid-cols-12">
+                ${gridCells}
+              </div>
+              <button type="button"
+                onmouseenter="updateTimelineReadout(${rIdx})"
+                onclick="updateTimelineReadout(${rIdx})"
+                aria-label="${row.detail.replace(/"/g, '&quot;')}"
+                style="left: ${insetLeft}; width: ${insetWidth}; background-color: ${row.pillBg}; border: ${row.pillBorder};"
+                class="timeline-pill absolute top-1/2 -translate-y-1/2 h-[22px] rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#14532D] dark:focus:ring-[#34D399]">
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="grid grid-cols-[150px_1fr] sm:grid-cols-[175px_1fr] items-center mb-1">
+          <div></div>
+          <div class="grid grid-cols-12">
+            ${headerCols}
+          </div>
+        </div>
+        <div class="rounded-2xl border border-[#E6ECE8] dark:border-darkBorder bg-[#FCFEFD] dark:bg-darkInset/40 overflow-hidden">
+          ${rowsHtml}
+        </div>
+      `;
+
+      window._latestTimelineRows = timelineRows;
+    }
+
+    function updateTimelineReadout(rowIndex) {
+      const rows = window._latestTimelineRows || [];
+      const row = rows[rowIndex];
+      const readoutEl = document.getElementById('timeline-hover-readout');
+      if (!row || !readoutEl) return;
+
+      const spanText = `${ALL_MONTHS[row.startIdx]} – ${ALL_MONTHS[row.endIdx]}`;
+      readoutEl.innerHTML = `
+        <span class="text-[#132A1E] dark:text-[#ECFDF5] font-medium">${row.detail}</span>
+        <span class="px-2.5 py-0.5 rounded-full bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder text-[11px] font-bold text-[#14532D] dark:text-[#34D399] shrink-0">
+          ${spanText}
+        </span>
+      `;
+    }
+
+    /* =====================================================================
+       4. REPORT GENERATION & EXPORT (.DOC & .PDF WITH ALL 4 GRAPHS)
+    ===================================================================== */
+    let latestReportSnapshot = null;
+    let profitChartInstance = null;
+    let waterCostChartInstance = null;
+    let seasonalChartInstance = null;
+
+    function buildSimpleReportText() {
+      return {
+        reportTitle: 'Simple Farm & Crop Rotation Plan',
+        secFarm: '1. Your Farm Details',
+        secWeather: '2. Local Weather & Soil Check',
+        secPlans: '3. Compare Your 3 Crop Plans',
+        secCharts: '4. Easy-to-Read Farm Charts',
+        secCalendar: '5. Month-by-Month Farming Calendar',
+        secTips: '6. Simple Advice for Your Field',
+        weatherNote: 'Weather test included',
+        warmer: 'warmer',
+        lessRain: 'less rain',
+        colPlan: 'Crop Plan',
+        colPlant: 'What to Plant',
+        colProfit: 'Total Profit',
+        colWater: 'Water Saved',
+        colSoil: 'Soil Health',
+        bestBadge: 'BEST CHOICE',
+        c1Help: 'This chart shows your profit after paying farming costs. The dark green line earns the most money by the final season.',
+        c2Help: 'Blue bars show water used each year. Green bars show yearly costs. Shorter bars mean you save more water and money.',
+        c3Help: 'Orange bars show the hottest months. The green line shows how cover crops keep water locked inside your soil.',
+        c4Help: 'Tracks bare field duration, optimal planting months, heat stress windows, and frost risk across the year.',
+        calSeasons: 'What to Plant Each Season',
+        calMonths: 'Simple 12-Month Work Guide',
+        colMonth: 'Month',
+        colStage: 'Stage',
+        colWork: 'What to Do on the Farm',
+        colWatering: 'Watering',
+        stPrep: 'Prepare & Plant',
+        stGrow: 'Grow & Care',
+        stHarvest: 'Harvest & Switch',
+        stCover: 'Rest & Protect Soil',
+        doPrep: 'Loosen top soil, mix in compost or manure, and plant seeds.',
+        doGrow: 'Check soil moisture, water roots evenly, and remove weeds.',
+        doHarvest: 'Harvest your main crop, leave plant mulch, and plant legumes.',
+        doCover: 'Let cover crops protect the soil, hold water, and add natural nutrients.'
+      };
+    }
+
+    function renderOffscreenChartJsPng(width, height, buildConfigFn) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      const ctx = canvas.getContext('2d');
+
+      const whiteBackdropPlugin = {
+        id: 'ecoWhiteBackdrop',
+        beforeDraw: (chart) => {
+          const { ctx: c, width: w, height: h } = chart;
+          c.save();
+          c.globalCompositeOperation = 'destination-over';
+          c.fillStyle = '#FFFFFF';
+          c.fillRect(0, 0, w, h);
+          c.restore();
+        }
+      };
+
+      const config = buildConfigFn();
+      config.options = {
+        ...(config.options || {}),
+        responsive: false,
+        maintainAspectRatio: false,
+        animation: false,
+        devicePixelRatio: 2
+      };
+      config.plugins = [...(config.plugins || []), whiteBackdropPlugin];
+
+      const tempChart = new Chart(ctx, config);
+      const dataUrl = canvas.toDataURL('image/png');
+      tempChart.destroy();
+      return dataUrl;
+    }
+
+    function renderOffscreenTimelinePng(timelineRows) {
+      const w = 640;
+      const h = 215;
+      const canvas = document.createElement('canvas');
+      canvas.width = w * 2;
+      canvas.height = h * 2;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(2, 2);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, w, h);
+
+      const leftMargin = 135;
+      const rightMargin = 16;
+      const topMargin = 32;
+      const gridW = w - leftMargin - rightMargin;
+      const rowH = 38;
+      const colW = gridW / 12;
+
+      ctx.fillStyle = '#4B6356';
+      ctx.font = 'bold 11px Arial, Helvetica, sans-serif';
+      ctx.textAlign = 'center';
+      ALL_MONTHS.forEach((m, i) => {
+        ctx.fillText(m, leftMargin + colW * (i + 0.5), 20);
+      });
+
+      ctx.strokeStyle = '#DCE6DF';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(12, topMargin, w - 28, rowH * timelineRows.length);
+
+      ctx.beginPath();
+      ctx.moveTo(leftMargin, topMargin);
+      ctx.lineTo(leftMargin, topMargin + rowH * timelineRows.length);
+      ctx.stroke();
+
+      for (let c = 1; c < 12; c++) {
+        ctx.beginPath();
+        ctx.moveTo(leftMargin + colW * c, topMargin);
+        ctx.lineTo(leftMargin + colW * c, topMargin + rowH * timelineRows.length);
+        ctx.stroke();
+      }
+
+      timelineRows.forEach((row, r) => {
+        const yTop = topMargin + r * rowH;
+        if (r > 0) {
+          ctx.beginPath();
+          ctx.moveTo(12, yTop);
+          ctx.lineTo(w - 16, yTop);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = '#132A1E';
+        ctx.font = r === 0 ? 'bold 12px Arial, Helvetica, sans-serif' : '12px Arial, Helvetica, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(row.label, 22, yTop + rowH / 2 + 4);
+
+        const px = leftMargin + row.startIdx * colW + 5;
+        const pw = (row.endIdx - row.startIdx + 1) * colW - 10;
+        const ph = 18;
+        const py = yTop + (rowH - ph) / 2;
+        const radius = ph / 2;
+
+        ctx.fillStyle = row.exportColor;
+        ctx.beginPath();
+        ctx.roundRect(px, py, pw, ph, radius);
+        ctx.fill();
+      });
+
+      return canvas.toDataURL('image/png');
+    }
+
+    function generateExportChartImages(snap) {
+      const curSymbol = snap.curSymbol || '$';
+      const yearLabels = snap.yearLabels || ['S1', 'S2', 'S3'];
+      const cumBaseline = snap.cumBaseline || [0, 0, 0];
+      const cumSoil = snap.cumSoil || [0, 0, 0];
+      const cumWater = snap.cumWater || [0, 0, 0];
+      const waterCostData = snap.waterCostData || { baseWater: 0, soilWater: 0, resWater: 0, baseCost: 0, soilCost: 0, resCost: 0 };
+      const etStressSeries = snap.etStressSeries || [26, 32, 46, 62, 76, 88, 94, 91, 74, 54, 38, 28];
+      const coverMoistureSeries = snap.coverMoistureSeries || [80, 76, 68, 58, 50, 44, 40, 42, 52, 64, 74, 80];
+
+      const textColor = '#4B6356';
+      const headingColor = '#132A1E';
+      const gridColor = 'rgba(220, 230, 223, 0.9)';
+      const chartFont = { family: 'Arial, Helvetica, sans-serif', size: 11 };
+
+      if (typeof Chart === 'undefined') {
+        return { chart1Img: '', chart2Img: '', chart3Img: '', chart4Img: '' };
+      }
+
+      const chart1Img = renderOffscreenChartJsPng(640, 260, () => ({
+        type: 'line',
+        data: {
+          labels: yearLabels,
+          datasets: [
+            {
+              label: 'Soil Health Rotation',
+              data: cumSoil,
+              borderColor: '#14532D',
+              backgroundColor: 'rgba(20, 83, 45, 0.12)',
+              borderWidth: 3,
+              pointRadius: 5,
+              fill: true,
+              tension: 0.32
+            },
+            {
+              label: 'Water-Resilient Rotation',
+              data: cumWater,
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              borderWidth: 2.5,
+              borderDash: [5, 4],
+              pointRadius: 4,
+              fill: false,
+              tension: 0.32
+            },
+            {
+              label: 'Baseline Monocrop',
+              data: cumBaseline,
+              borderColor: '#D97706',
+              backgroundColor: 'rgba(217, 119, 6, 0.08)',
+              borderWidth: 2,
+              pointRadius: 4,
+              fill: false,
+              tension: 0.32
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom', labels: { color: headingColor, usePointStyle: true, padding: 14, font: chartFont } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            y: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: chartFont, callback: (val) => `${val < 0 ? '-' : ''}${curSymbol}${Math.abs(val).toLocaleString()}` }
+            }
+          }
+        }
+      }));
+
+      const chart2Img = renderOffscreenChartJsPng(640, 260, () => ({
+        type: 'bar',
+        data: {
+          labels: ['Baseline', 'Soil Health', 'Water-Resilient'],
+          datasets: [
+            {
+              label: 'Annual Water (m³)',
+              data: [waterCostData.baseWater, waterCostData.soilWater, waterCostData.resWater],
+              backgroundColor: 'rgba(2, 132, 199, 0.82)',
+              borderRadius: 8,
+              yAxisID: 'yWater'
+            },
+            {
+              label: `Avg Annual Cost (${appState.currency})`,
+              data: [waterCostData.baseCost, waterCostData.soilCost, waterCostData.resCost],
+              backgroundColor: 'rgba(20, 83, 45, 0.88)',
+              borderRadius: 8,
+              yAxisID: 'yCost'
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom', labels: { color: headingColor, usePointStyle: true, padding: 14, font: chartFont } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            yWater: {
+              type: 'linear',
+              position: 'left',
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${v.toLocaleString()} m³` }
+            },
+            yCost: {
+              type: 'linear',
+              position: 'right',
+              grid: { display: false },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${curSymbol}${v.toLocaleString()}` }
+            }
+          }
+        }
+      }));
+
+      const chart3Img = renderOffscreenChartJsPng(640, 250, () => ({
+        type: 'bar',
+        data: {
+          labels: ALL_MONTHS,
+          datasets: [
+            {
+              type: 'line',
+              label: t('g3_leg2'),
+              data: coverMoistureSeries,
+              borderColor: '#14532D',
+              backgroundColor: 'rgba(16, 185, 129, 0.14)',
+              borderWidth: 3,
+              pointRadius: 4,
+              tension: 0.35,
+              fill: true
+            },
+            {
+              type: 'bar',
+              label: t('g3_leg1'),
+              data: etStressSeries,
+              backgroundColor: 'rgba(217, 119, 6, 0.75)',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom', labels: { color: headingColor, usePointStyle: true, padding: 14, font: chartFont } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            y: {
+              min: 0,
+              max: 105,
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${v}%` }
+            }
+          }
+        }
+      }));
+
+      const chart4Img = renderOffscreenTimelinePng(snap.timelineRows || []);
+
+      return { chart1Img, chart2Img, chart3Img, chart4Img };
+    }
+
+    function buildLocalizedRotationCalendarHtml(snap) {
+      const txt = buildSimpleReportText();
+      const isSouthern = appState.latitude < 0;
+      const monthsList = isSouthern
+        ? ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        : ALL_MONTHS;
+
+      const seasonHeaders = Array.from({ length: snap.years }, (_, i) => `<th>Season ${i + 1}</th>`).join('');
+      const strategyScheduleRows = snap.strategies.map((st, idx) => {
+        const cells = st.seasonCrops.map(c => `<td><strong>${c}</strong></td>`).join('');
+        return `<tr class="${idx === 1 ? 'highlight' : ''}"><td><strong>${st.simpleName}</strong></td>${cells}</tr>`;
+      }).join('');
+
+      const monthlyRows = monthsList.map((m, idx) => {
+        let phase = txt.stGrow;
+        let action = txt.doGrow;
+        let irrigTarget = appState.irrigation_method === 'Rain-fed' ? 'Rain only' : 'Medium water';
+
+        if (idx <= 2) {
+          phase = txt.stPrep;
+          action = txt.doPrep;
+          irrigTarget = appState.irrigation_method === 'Rain-fed' ? 'Rain only' : 'Light water';
+        } else if (idx >= 6 && idx <= 8) {
+          phase = txt.stHarvest;
+          action = txt.doHarvest;
+          irrigTarget = appState.irrigation_method === 'Rain-fed' ? 'Rain only' : 'Medium water';
+        } else if (idx >= 9) {
+          phase = txt.stCover;
+          action = txt.doCover;
+          irrigTarget = appState.irrigation_method === 'Rain-fed' ? 'Rain only' : 'Very light water';
+        }
+
+        return `
+          <tr>
+            <td><strong>${m}</strong></td>
+            <td>${phase}</td>
+            <td>${action}</td>
+            <td>${irrigTarget}</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <h2>${txt.secCalendar}</h2>
+        <h3>${txt.calSeasons}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>${txt.colPlan}</th>
+              ${seasonHeaders}
+            </tr>
+          </thead>
+          <tbody>
+            ${strategyScheduleRows}
+          </tbody>
+        </table>
+
+        <h3>${txt.calMonths}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>${txt.colMonth}</th>
+              <th>${txt.colStage}</th>
+              <th>${txt.colWork}</th>
+              <th>${txt.colWatering}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${monthlyRows}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function buildExportChartsHtml(snap) {
+      const txt = buildSimpleReportText();
+      const imgs = generateExportChartImages(snap);
+
+      return `
+        <h2>${txt.secCharts}</h2>
+
+        <div class="chart-card">
+          <h3>${t('g1_title')}</h3>
+          <img src="${imgs.chart1Img}" alt="${t('g1_title')}" width="620" height="252" style="width:100%;max-width:620px;height:auto;display:block;margin:6px auto;" />
+          <p class="chart-caption">${t('g1_sub')} — ${txt.c1Help}</p>
+        </div>
+
+        <div class="chart-card">
+          <h3>${t('g2_title')}</h3>
+          <img src="${imgs.chart2Img}" alt="${t('g2_title')}" width="620" height="252" style="width:100%;max-width:620px;height:auto;display:block;margin:6px auto;" />
+          <p class="chart-caption">${t('g2_sub')} — ${txt.c2Help}</p>
+        </div>
+
+        <div class="chart-card">
+          <h3>${t('g3_title')}</h3>
+          <img src="${imgs.chart3Img}" alt="${t('g3_title')}" width="620" height="242" style="width:100%;max-width:620px;height:auto;display:block;margin:6px auto;" />
+          <p class="chart-caption">${t('g3_sub')} — ${txt.c3Help}</p>
+        </div>
+
+        <div class="chart-card">
+          <h3>${t('g4_title')}</h3>
+          <img src="${imgs.chart4Img}" alt="${t('g4_title')}" width="620" height="208" style="width:100%;max-width:620px;height:auto;display:block;margin:6px auto;" />
+          <p class="chart-caption">${t('g4_sub')} — ${txt.c4Help}</p>
+        </div>
+      `;
+    }
+
+    function exportReport(format) {
+      document.getElementById('download-report-menu').classList.add('hidden');
+      if (!latestReportSnapshot) {
+        renderResultsAndCharts();
+      }
+      const snap = latestReportSnapshot;
+      const dict = I18N_DICTIONARY[appState.lang] || I18N_DICTIONARY.en;
+      const txt = buildSimpleReportText();
+      const dir = dict.dir || 'ltr';
+      const align = dir === 'rtl' ? 'right' : 'left';
+      const dateStr = new Date().toLocaleDateString(appState.lang === 'en' ? 'en-US' : appState.lang, {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      const localizedCrop = getLocalizedCropLabel(appState.current_crop);
+      const localizedSoil = (dict.soils && dict.soils[appState.soil_type]) || appState.soil_type;
+      const localizedUnit = (dict.units && dict.units[appState.field_size_unit]) || appState.field_size_unit;
+      const chartsHtml = buildExportChartsHtml(snap);
+      const calendarHtml = buildLocalizedRotationCalendarHtml(snap);
+
+      const weatherTestNote = (snap.tempShock > 0 || snap.rainShockPct > 0)
+        ? `<p style="margin-top:6px;font-size:12.5px;color:#B45309;"><strong>${txt.weatherNote}:</strong> +${snap.tempShock.toFixed(1)}°C ${txt.warmer}, ${snap.rainShockPct}% ${txt.lessRain}.</p>`
+        : '';
+
+      const reportHtml = `
+        <!DOCTYPE html>
+        <html lang="${appState.lang}" dir="${dir}">
+        <head>
+          <meta charset="UTF-8" />
+          <title>EcoRotate — ${txt.reportTitle}</title>
+          <style>
+            body { font-family: Arial, Helvetica, sans-serif; color: #132A1E; padding: 28px; line-height: 1.6; direction: ${dir}; text-align: ${align}; font-size: 13px; }
+            h1 { color: #14532D; border-bottom: 2px solid #14532D; padding-bottom: 8px; margin-bottom: 4px; font-size: 21px; }
+            h2 { color: #14532D; margin-top: 24px; font-size: 16px; border-bottom: 1px solid #DCE6DF; padding-bottom: 4px; }
+            h3 { color: #166534; margin-top: 12px; margin-bottom: 4px; font-size: 13.5px; }
+            .meta { color: #4B6356; font-size: 12px; margin-bottom: 16px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 14px; font-size: 12.5px; }
+            th, td { border: 1px solid #DCE6DF; padding: 8px 10px; text-align: ${align}; }
+            th { background-color: #E6F2EA; color: #14532D; font-weight: bold; }
+            .highlight { background-color: #F3F7F4; }
+            .badge { display: inline-block; background: #14532D; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; }
+            .chart-card { border: 1px solid #DCE6DF; border-radius: 8px; padding: 12px 14px; margin-top: 12px; margin-bottom: 14px; background: #FFFFFF; page-break-inside: avoid; break-inside: avoid; }
+            .chart-caption { color: #374151; font-size: 12px; margin: 6px 0 0 0; }
+            ul.simple-tips { padding-left: 20px; margin-top: 8px; }
+            ul.simple-tips li { margin-bottom: 8px; }
+            @media print {
+              body { padding: 12px; }
+              h2 { page-break-after: avoid; }
+              .chart-card { page-break-inside: avoid; break-inside: avoid; }
+              tr { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>EcoRotate — ${txt.reportTitle}</h1>
+          <div class="meta">${dateStr} &bull; ${snap.regionLabel} (${snap.lat.toFixed(4)}°, ${snap.lon.toFixed(4)}°)</div>
+
+          <h2>${txt.secFarm}</h2>
+          <table>
+            <tr>
+              <th>${dict.lbl_crop}</th><td><strong>${localizedCrop}</strong></td>
+              <th>${dict.lbl_soil}</th><td><strong>${localizedSoil}</strong></td>
+            </tr>
+            <tr>
+              <th>${dict.lbl_irrigation}</th><td>${appState.irrigation_method}</td>
+              <th>${dict.lbl_size}</th><td>${snap.area} ${localizedUnit}</td>
+            </tr>
+            <tr>
+              <th>${dict.lbl_varcost}</th><td>${snap.curSymbol}${appState.variable_cost_per_unit}</td>
+              <th>${dict.lbl_price}</th><td>${snap.curSymbol}${appState.crop_price_per_ton}</td>
+            </tr>
+          </table>
+
+          <h2>${txt.secWeather}</h2>
+          <table>
+            <tr>
+              <th>${dict.tel_temp_lbl}</th>
+              <th>${dict.tel_moist_lbl}</th>
+              <th>${dict.tel_rain_lbl}</th>
+              <th>${dict.tel_solar_lbl}</th>
+              <th>${dict.tel_elev_lbl}</th>
+            </tr>
+            <tr>
+              <td>${appState.telemetry.tempC}°C</td>
+              <td>${appState.telemetry.moisturePct}%</td>
+              <td>${appState.telemetry.precipMm} mm</td>
+              <td>${appState.telemetry.solarKwh} kWh/m²</td>
+              <td>${appState.telemetry.elevationM} m</td>
+            </tr>
+          </table>
+          ${weatherTestNote}
+
+          <h2>${txt.secPlans} (${snap.years} Seasons)</h2>
+          <table>
+            <tr>
+              <th>${txt.colPlan}</th>
+              <th>${txt.colPlant}</th>
+              <th>${txt.colProfit} (${appState.currency})</th>
+              <th>${txt.colWater}</th>
+              <th>${txt.colSoil}</th>
+            </tr>
+            ${snap.strategies.map((s, idx) => `
+              <tr class="${idx === 1 ? 'highlight' : ''}">
+                <td>
+                  ${idx === 1 ? `<div class="badge">${txt.bestBadge}</div><br/>` : ''}
+                  <strong>${s.simpleName}</strong>
+                </td>
+                <td>${s.sequence}</td>
+                <td><strong>${s.profit < 0 ? '-' : ''}${snap.curSymbol}${Math.abs(s.profit).toLocaleString()}</strong></td>
+                <td>${s.waterBadge}</td>
+                <td>${s.soilBadge}</td>
+              </tr>
+            `).join('')}
+          </table>
+
+          ${chartsHtml}
+
+          ${calendarHtml}
+
+          <h2>${txt.secTips}</h2>
+          <ul class="simple-tips">
+            ${snap.strategies.map(s => `<li><strong>${s.simpleName}:</strong> ${s.simpleTip}</li>`).join('')}
+          </ul>
+        </body>
+        </html>
+      `;
+
+      if (format === 'word') {
+        const blob = new Blob(['\ufeff', reportHtml], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `EcoRotate_Analytics_Report_${appState.current_crop}_${appState.lang.toUpperCase()}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast(`${dict.dl_word} (.doc) downloaded`);
+      } else {
+        const printWin = window.open('', '_blank', 'width=960,height=780');
+        if (printWin) {
+          printWin.document.open();
+          printWin.document.write(reportHtml);
+          printWin.document.close();
+          printWin.focus();
+          const imgs = Array.from(printWin.document.images || []);
+          Promise.all(
+            imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = res; img.onerror = res; }))
+          ).then(() => {
+            setTimeout(() => {
+              printWin.print();
+            }, 200);
+          });
+          showToast(`${dict.dl_pdf} ready to save`);
+        } else {
+          showToast('Please allow pop-ups to save PDF');
+        }
+      }
+    }
+
+    /* =====================================================================
+       5. CORE ANALYTICS COMPUTATION & CHART RENDERING
+    ===================================================================== */
+    function renderResultsAndCharts() {
+      const dict = I18N_DICTIONARY[appState.lang] || I18N_DICTIONARY.en;
+      const bench = CROP_BENCHMARKS[appState.current_crop] || CROP_BENCHMARKS.Wheat;
+      const curSymbol = CURRENCY_RATES[appState.currency].symbol;
+      const curRate = CURRENCY_RATES[appState.currency].rate;
+      const areaRate = AREA_RATES[appState.field_size_unit].rate;
+      const years = appState.cycle_years || 3;
+      const area = appState.field_size;
+
+      const tempShock = parseFloat(document.getElementById('slider-temp-shock').value || 0);
+      const rainShockPct = parseInt(document.getElementById('slider-rain-shock').value || 0, 10);
+
+      const localizedUnit = (dict.units && dict.units[appState.field_size_unit]) || appState.field_size_unit;
+      document.getElementById('results-subtitle').textContent =
+        `${area} ${localizedUnit} • ${appState.regionLabel} (${years} Seasons)`;
+      document.getElementById('g1-badge').textContent = appState.currency;
+
+      const soilDrainagePenalty = appState.soil_type === 'Sandy' ? 1.18 : appState.soil_type === 'Clay' ? 0.92 : 1.0;
+      const irrigEfficiency = appState.irrigation_method === 'Drip' ? 0.72 : appState.irrigation_method === 'Sprinkler' ? 0.88 : appState.irrigation_method === 'Flood' ? 1.18 : 0.0;
+      const rainFedVulnerability = appState.irrigation_method === 'Rain-fed' ? 1.35 : 0.75;
+
+      const effectiveTemp = appState.telemetry.tempC + tempShock;
+      const effectiveMoisture = Math.max(6, appState.telemetry.moisturePct * (1 - rainShockPct / 100));
+      const heatExcess = Math.max(0, effectiveTemp - 26.5);
+      const moistureDeficit = Math.max(0, (48 - effectiveMoisture) / 100);
+
+      const baseYieldPerUnit = bench.yieldTonPerAcre * areaRate;
+      const baseGrossYr = area * baseYieldPerUnit * appState.crop_price_per_ton;
+      const baseCostYr = area * appState.variable_cost_per_unit;
+      const baseWaterM3Yr = Math.round(area * bench.waterM3PerAcre * areaRate * soilDrainagePenalty * (appState.irrigation_method === 'Rain-fed' ? 0.25 : irrigEfficiency));
+
+      const soilLegume = bench.soilCompanion;
+      const legumeBench = CROP_BENCHMARKS[soilLegume];
+      const legumeGrossYr = area * (legumeBench.yieldTonPerAcre * areaRate) * Math.round(legumeBench.priceUSD * curRate);
+      const legumeCostYr = area * Math.round(legumeBench.varCostUSD * curRate * areaRate);
+      const legumeWaterM3Yr = Math.round(area * legumeBench.waterM3PerAcre * areaRate * soilDrainagePenalty * (appState.irrigation_method === 'Rain-fed' ? 0.25 : irrigEfficiency));
+
+      const waterCrop = bench.waterCompanion;
+      const waterBench = CROP_BENCHMARKS[waterCrop];
+      const waterGrossYr = area * (waterBench.yieldTonPerAcre * areaRate) * Math.round(waterBench.priceUSD * curRate);
+      const waterCostYr = area * Math.round(waterBench.varCostUSD * curRate * areaRate);
+      const waterCropM3Yr = Math.round(area * waterBench.waterM3PerAcre * areaRate * soilDrainagePenalty * (appState.irrigation_method === 'Rain-fed' ? 0.25 : irrigEfficiency));
+
+      const yearLabels = Array.from({ length: years }, (_, i) => `S${i + 1}`);
+      const cumBaseline = [];
+      const cumSoil = [];
+      const cumWater = [];
+
+      let runBase = 0, runSoil = 0, runWater = 0;
+      let totalSoilCost = 0, totalWaterCost = 0;
+
+      for (let y = 1; y <= years; y++) {
+        const decay = 1 - (y - 1) * 0.065;
+        const basePenalty = Math.min(0.55, (heatExcess * 0.026 + moistureDeficit * 0.36) * rainFedVulnerability);
+        const yBaseGross = baseGrossYr * decay * (1 - basePenalty);
+        const yBaseCost = baseCostYr * (1 + (y - 1) * 0.045);
+        runBase += (yBaseGross - yBaseCost);
+        cumBaseline.push(Math.round(runBase));
+
+        const isLegumeYr = (y % 2 === 0);
+        const soilPenalty = Math.min(0.32, (heatExcess * 0.016 + moistureDeficit * 0.22) * rainFedVulnerability);
+        if (isLegumeYr) {
+          runSoil += (legumeGrossYr * (1 - soilPenalty) - legumeCostYr);
+          totalSoilCost += legumeCostYr;
+        } else {
+          const fertDiscount = y > 1 ? 0.80 : 1.0;
+          const yieldBoost = y > 1 ? 1.09 : 1.0;
+          const c = baseCostYr * fertDiscount;
+          runSoil += (baseGrossYr * yieldBoost * (1 - soilPenalty) - c);
+          totalSoilCost += c;
+        }
+        cumSoil.push(Math.round(runSoil));
+
+        const mildPenalty = Math.min(0.15, heatExcess * 0.008 + (rainShockPct / 100) * 0.12);
+        if (y % 2 === 1) {
+          runWater += (waterGrossYr * (1 - mildPenalty) - waterCostYr);
+          totalWaterCost += waterCostYr;
+        } else {
+          const c = legumeCostYr * 0.92;
+          runWater += (legumeGrossYr * (1 - mildPenalty) - c);
+          totalWaterCost += c;
+        }
+        cumWater.push(Math.round(runWater));
+      }
+
+      const avgSoilWaterM3 = Math.round((baseWaterM3Yr + legumeWaterM3Yr) / 2);
+      const avgResWaterM3 = Math.round((waterCropM3Yr + legumeWaterM3Yr) / 2);
+      const soilWaterSavedPct = Math.max(8, Math.round(((baseWaterM3Yr - avgSoilWaterM3) / Math.max(1, baseWaterM3Yr)) * 100));
+      const resWaterSavedPct = Math.max(18, Math.round(((baseWaterM3Yr - avgResWaterM3) / Math.max(1, baseWaterM3Yr)) * 100));
+
+      const cropDisp = getLocalizedCropLabel(appState.current_crop);
+      const legumeDisp = getLocalizedCropLabel(soilLegume);
+      const waterDisp = getLocalizedCropLabel(waterCrop);
+      const soilDisp = (dict.soils && dict.soils[appState.soil_type]) || appState.soil_type;
+
+      const baseSeasonCrops = Array.from({ length: years }, () => cropDisp);
+      const soilSeasonCrops = Array.from({ length: years }, (_, i) => i % 2 === 0 ? cropDisp : legumeDisp);
+      const waterSeasonCrops = Array.from({ length: years }, (_, i) => i % 2 === 0 ? waterDisp : legumeDisp);
+
+      const strategies = [
+        {
+          id: 'baseline',
+          tag: 'Strategy 1 • Baseline Monocrop',
+          tagCls: 'bg-lightCanvas dark:bg-darkInset text-[#4B6356] dark:text-[#94B8A6] border-lightBorder dark:border-darkBorder',
+          title: `Continuous ${cropDisp}`,
+          simpleName: `Keep Planting Only ${cropDisp}`,
+          seasonCrops: baseSeasonCrops,
+          sequence: baseSeasonCrops.map((c, i) => `S${i + 1}: ${c}`).join(' → '),
+          summary: `Continuous ${cropDisp} cultivation gradually depletes root-zone nitrogen, increases input costs by ~4.5% per season, and exposes margins to heat and moisture volatility.`,
+          profit: cumBaseline[years - 1],
+          waterBadge: '0% Water Saved',
+          soilBadge: '-18% Soil Nitrogen',
+          featured: false,
+          audit: `Regional climatology averages ${appState.telemetry.tempC}°C with ${appState.telemetry.moisturePct}% topsoil moisture. Repeating ${bench.family} without a break crop elevates soil-borne pathogen pressure in ${soilDisp} soils.`,
+          simpleTip: `Planting only ${cropDisp} every season tires out your ${soilDisp} soil, forces you to buy more fertilizer, and lowers your yield over time.`
+        },
+        {
+          id: 'soil',
+          tag: 'Strategy 2 • Soil Health & Profit',
+          tagCls: 'bg-[#14532D] dark:bg-[#10B981] text-white dark:text-[#06281E] border-[#14532D] dark:border-[#10B981]',
+          title: `${cropDisp} + ${legumeDisp}`,
+          simpleName: `Switch Between ${cropDisp} and ${legumeDisp}`,
+          seasonCrops: soilSeasonCrops,
+          sequence: soilSeasonCrops.map((c, i) => `S${i + 1}: ${c}`).join(' → '),
+          summary: `Alternating ${cropDisp} with nitrogen-fixing ${legumeDisp} enriches soil organic matter, cuts synthetic fertilizer spend by ~20%, and boosts subsequent main-crop yields by +9%.`,
+          profit: cumSoil[years - 1],
+          waterBadge: `-${soilWaterSavedPct}% Water Saved`,
+          soilBadge: '+24% Soil Nitrogen',
+          featured: true,
+          audit: `In ${soilDisp} soil under ${appState.irrigation_method} irrigation, ${legumeDisp} roots fix atmospheric nitrogen and break pest cycles, lifting total ${years}-season net return.`,
+          simpleTip: `Plant ${cropDisp} one season and ${legumeDisp} the next. ${legumeDisp} puts free natural plant food back into your soil so your next harvest grows bigger and costs less.`
+        },
+        {
+          id: 'water',
+          tag: 'Strategy 3 • Drought & Water-Smart',
+          tagCls: 'bg-lightCanvas dark:bg-darkInset text-[#14532D] dark:text-[#34D399] border-lightBorder dark:border-darkBorder',
+          title: `${waterDisp} + ${legumeDisp}`,
+          simpleName: `Water-Saving ${waterDisp} and ${legumeDisp}`,
+          seasonCrops: waterSeasonCrops,
+          sequence: waterSeasonCrops.map((c, i) => `S${i + 1}: ${c}`).join(' → '),
+          summary: `Pairing drought-tolerant ${waterDisp} with ${legumeDisp} slashes irrigation demand by ${resWaterSavedPct}% while protecting farm income during hot or dry seasons.`,
+          profit: cumWater[years - 1],
+          waterBadge: `-${resWaterSavedPct}% Water Saved`,
+          soilBadge: '+18% Soil Moisture',
+          featured: false,
+          audit: `Deep-rooted ${waterDisp} thrives in ${appState.telemetry.tempC}°C climates with minimal water stress, keeping yields steady even if rainfall drops.`,
+          simpleTip: `Choose this plan if rain is low or water is expensive. ${waterDisp} needs much less water to grow well and keeps your income safe during hot weather.`
+        }
+      ];
+
+      const waterCostData = {
+        baseWater: baseWaterM3Yr,
+        soilWater: avgSoilWaterM3,
+        resWater: avgResWaterM3,
+        baseCost: Math.round(baseCostYr),
+        soilCost: Math.round(totalSoilCost / years),
+        resCost: Math.round(totalWaterCost / years)
+      };
+
+      const isSouthern = appState.latitude < 0;
+      const baseHeatCurve = isSouthern
+        ? [88, 84, 72, 54, 38, 28, 26, 35, 50, 68, 80, 86]
+        : [26, 32, 46, 62, 76, 88, 94, 91, 74, 54, 38, 28];
+      const etStressSeries = baseHeatCurve.map(v => Math.min(100, Math.round(v + tempShock * 3.8 + rainShockPct * 0.22)));
+      const coverMoistureSeries = baseHeatCurve.map(v => Math.max(24, Math.min(96, Math.round(108 - v * 0.62 - rainShockPct * 0.28 + (appState.irrigation_method === 'Drip' ? 10 : 4)))));
+
+      const timelineRows = computeSeasonalTimelineWindows(tempShock, rainShockPct);
+
+      latestReportSnapshot = {
+        lat: appState.latitude,
+        lon: appState.longitude,
+        regionLabel: appState.regionLabel,
+        area,
+        years,
+        curSymbol,
+        tempShock,
+        rainShockPct,
+        strategies,
+        yearLabels,
+        cumBaseline,
+        cumSoil,
+        cumWater,
+        waterCostData,
+        etStressSeries,
+        coverMoistureSeries,
+        timelineRows
+      };
+
+      // Render 4 Executive KPI Impact Cards
+      const profitDelta = cumSoil[years - 1] - cumBaseline[years - 1];
+      const waterSavedM3 = Math.max(0, (baseWaterM3Yr - avgResWaterM3) * years);
+      const resilienceScore = Math.max(62, Math.min(97, Math.round(92 - tempShock * 3.5 - rainShockPct * 0.25)));
+
+      const kpiStrip = document.getElementById('kpi-impact-strip');
+      if (kpiStrip) {
+        kpiStrip.innerHTML = `
+          <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-4 shadow-card dark:shadow-darkCard">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">Rotation Profit Uplift</div>
+            <div class="text-xl sm:text-2xl font-bold text-[#14532D] dark:text-[#34D399] mt-1">
+              ${profitDelta >= 0 ? '+' : '-'}${curSymbol}${Math.abs(profitDelta).toLocaleString()}
+            </div>
+            <div class="text-xs text-[#4B6356] dark:text-[#94B8A6] mt-0.5">vs. continuous ${cropDisp} (${years} seasons)</div>
+          </div>
+          <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-4 shadow-card dark:shadow-darkCard">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">Cumulative Water Saved</div>
+            <div class="text-xl sm:text-2xl font-bold text-[#14532D] dark:text-[#34D399] mt-1">
+              ${waterSavedM3.toLocaleString()} m³
+            </div>
+            <div class="text-xs text-[#4B6356] dark:text-[#94B8A6] mt-0.5">Up to -${resWaterSavedPct}% irrigation demand</div>
+          </div>
+          <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-4 shadow-card dark:shadow-darkCard">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">Synthetic N Reduction</div>
+            <div class="text-xl sm:text-2xl font-bold text-[#14532D] dark:text-[#34D399] mt-1">
+              -24% Fertilizer
+            </div>
+            <div class="text-xs text-[#4B6356] dark:text-[#94B8A6] mt-0.5">Biological fixation via ${legumeDisp}</div>
+          </div>
+          <div class="bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder rounded-2xl p-4 shadow-card dark:shadow-darkCard">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">Climate Resilience Index</div>
+            <div class="text-xl sm:text-2xl font-bold text-[#14532D] dark:text-[#34D399] mt-1">
+              ${resilienceScore} / 100
+            </div>
+            <div class="text-xs text-[#4B6356] dark:text-[#94B8A6] mt-0.5">Stress-tested at +${tempShock.toFixed(1)}°C / -${rainShockPct}% rain</div>
+          </div>
+        `;
+      }
+
+      // Render 3 Strategy Cards — use ML-recommended crops if available, otherwise fall back to local strategies
+      const grid = document.getElementById('strategy-cards-grid');
+      const mlCrops = (backendResult && backendResult.status === 'COMPLETED' && backendResult.result && backendResult.result.recommendedCrops) ? backendResult.result.recommendedCrops.slice(0, 3) : null;
+
+      if (mlCrops && mlCrops.length > 0) {
+        // Render ML-recommended crop cards
+        grid.innerHTML = mlCrops.map((cropRec, idx) => {
+          const rank = cropRec.rank || (idx + 1);
+          const scorePct = cropRec.scorePct != null ? cropRec.scorePct : (cropRec.score != null ? Math.round(cropRec.score * 100) : null);
+          const scoreDisplay = scorePct != null ? `${Math.round(scorePct)}%` : 'N/A';
+          const isTop = (rank === 1);
+          const tagLabel = rank === 1 ? '🥇 Top Pick' : rank === 2 ? '🥈 Runner-Up' : '🥉 Third Choice';
+          const tagCls = isTop
+            ? 'bg-[#14532D] dark:bg-[#10B981] text-white dark:text-[#06281E] border-[#14532D] dark:border-[#10B981]'
+            : 'bg-lightCanvas dark:bg-darkInset text-[#4B6356] dark:text-[#94B8A6] border-lightBorder dark:border-darkBorder';
+          const cardBorder = isTop
+            ? 'bg-white dark:bg-darkSurface border-2 border-[#14532D] dark:border-[#10B981] shadow-card dark:shadow-darkCard'
+            : 'bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder shadow-card dark:shadow-darkCard';
+          const explanation = cropRec.explanation || 'Recommended based on your farm conditions.';
+          const cropName = cropRec.crop || 'Unknown';
+          return `
+          <div class="rounded-3xl p-6 flex flex-col justify-between transition-all ${cardBorder}">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ${tagCls} mb-3">
+                ${tagLabel}
+              </span>
+              <h3 class="text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">${cropName}</h3>
+              <div class="mt-2 px-3 py-2 rounded-xl bg-lightCanvas dark:bg-darkInset border border-lightBorder dark:border-darkBorder text-xs font-semibold text-[#132A1E] dark:text-[#ECFDF5]">
+                Match Score: ${scoreDisplay}
+              </div>
+              <p class="text-xs sm:text-sm text-[#4B6356] dark:text-[#94B8A6] mt-3 leading-relaxed">
+                ${explanation}
+              </p>
+
+              <div class="mt-5 pt-4 border-t border-lightBorder dark:border-darkBorder">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">
+                  ML Confidence Score
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold text-[#14532D] dark:text-[#34D399] mt-0.5">${scoreDisplay}</div>
+
+                <div class="flex flex-wrap gap-2 mt-3">
+                  <span class="px-2.5 py-1 rounded-lg bg-[#E6F2EA] dark:bg-darkInset text-[#14532D] dark:text-[#34D399] text-[11px] font-bold">
+                    Rank #${rank}
+                  </span>
+                  <span class="px-2.5 py-1 rounded-lg bg-lightCanvas dark:bg-darkInset text-[#4B6356] dark:text-[#94B8A6] border border-lightBorder dark:border-darkBorder text-[11px] font-semibold">
+                    ML-Powered
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <details class="mt-5 pt-3 border-t border-lightBorder/80 dark:border-darkBorder/80 group">
+              <summary class="text-xs font-bold text-[#166534] dark:text-[#34D399] cursor-pointer flex items-center justify-between list-none min-h-[32px]">
+                <span>🔍 Why This Crop?</span>
+                <span class="text-xs group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p class="mt-2 text-xs text-[#4B6356] dark:text-[#94B8A6] bg-lightCanvas dark:bg-darkInset p-3 rounded-xl border border-lightBorder dark:border-darkBorder leading-relaxed">
+                ${explanation} Scored ${scoreDisplay} match for your soil type (${appState.soil_type}), irrigation (${appState.irrigation_method}), and climate conditions (${appState.telemetry.tempC}°C, ${appState.telemetry.moisturePct}% moisture).
+              </p>
+            </details>
+          </div>
+        `;
+        }).join('');
+      } else {
+        // Fall back to locally computed strategies
+        grid.innerHTML = strategies.map(st => {
+          const formatted = `${st.profit < 0 ? '-' : ''}${curSymbol}${Math.abs(st.profit).toLocaleString()}`;
+          const profitCls = st.profit < 0 ? 'text-red-600 dark:text-red-400' : 'text-[#14532D] dark:text-[#34D399]';
+          return `
+          <div class="rounded-3xl p-6 flex flex-col justify-between transition-all ${
+            st.featured
+              ? 'bg-white dark:bg-darkSurface border-2 border-[#14532D] dark:border-[#10B981] shadow-card dark:shadow-darkCard'
+              : 'bg-white dark:bg-darkSurface border border-lightBorder dark:border-darkBorder shadow-card dark:shadow-darkCard'
+          }">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ${st.tagCls} mb-3">
+                ${st.tag}
+              </span>
+              <h3 class="text-xl font-bold text-[#14532D] dark:text-[#ECFDF5]">${st.title}</h3>
+              <div class="mt-2 px-3 py-2 rounded-xl bg-lightCanvas dark:bg-darkInset border border-lightBorder dark:border-darkBorder text-xs font-semibold text-[#132A1E] dark:text-[#ECFDF5]">
+                ${st.sequence}
+              </div>
+              <p class="text-xs sm:text-sm text-[#4B6356] dark:text-[#94B8A6] mt-3 leading-relaxed">
+                ${st.summary}
+              </p>
+
+              <div class="mt-5 pt-4 border-t border-lightBorder dark:border-darkBorder">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[#4B6356] dark:text-[#94B8A6]">
+                  ${years}-Season Cumulative Net Profit
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold ${profitCls} mt-0.5">${formatted}</div>
+
+                <div class="flex flex-wrap gap-2 mt-3">
+                  <span class="px-2.5 py-1 rounded-lg bg-[#E6F2EA] dark:bg-darkInset text-[#14532D] dark:text-[#34D399] text-[11px] font-bold">
+                    ${st.waterBadge}
+                  </span>
+                  <span class="px-2.5 py-1 rounded-lg bg-lightCanvas dark:bg-darkInset text-[#4B6356] dark:text-[#94B8A6] border border-lightBorder dark:border-darkBorder text-[11px] font-semibold">
+                    ${st.soilBadge}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <details class="mt-5 pt-3 border-t border-lightBorder/80 dark:border-darkBorder/80 group">
+              <summary class="text-xs font-bold text-[#166534] dark:text-[#34D399] cursor-pointer flex items-center justify-between list-none min-h-[32px]">
+                <span>🔍 Local Agronomist & Grid Audit</span>
+                <span class="text-xs group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <p class="mt-2 text-xs text-[#4B6356] dark:text-[#94B8A6] bg-lightCanvas dark:bg-darkInset p-3 rounded-xl border border-lightBorder dark:border-darkBorder leading-relaxed">
+                ${st.audit}
+              </p>
+            </details>
+          </div>
+        `;
+        }).join('');
+      }
+
+      renderCharts(yearLabels, cumBaseline, cumSoil, cumWater, waterCostData, etStressSeries, coverMoistureSeries);
+      renderCropTimelineChart(timelineRows);
+    }
+
+    function renderCharts(yearLabels, cumBaseline, cumSoil, cumWater, waterCostData, etStressSeries, coverMoistureSeries) {
+      if (typeof Chart === 'undefined') return;
+
+      const isDark = appState.darkMode;
+      const textColor = isDark ? '#94B8A6' : '#4B6356';
+      const headingColor = isDark ? '#ECFDF5' : '#132A1E';
+      const gridColor = isDark ? 'rgba(34, 56, 46, 0.7)' : 'rgba(220, 230, 223, 0.85)';
+      const curSymbol = CURRENCY_RATES[appState.currency].symbol;
+      const chartFont = { family: 'Gilroy-Medium, Gilroy, sans-serif', size: 11 };
+
+      if (profitChartInstance) profitChartInstance.destroy();
+      if (waterCostChartInstance) waterCostChartInstance.destroy();
+      if (seasonalChartInstance) seasonalChartInstance.destroy();
+
+      // Graph 1: Cumulative Net Profit Trajectory
+      const ctx1 = document.getElementById('chart-profit-trajectory').getContext('2d');
+      profitChartInstance = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: yearLabels,
+          datasets: [
+            {
+              label: 'Soil Health Rotation',
+              data: cumSoil,
+              borderColor: isDark ? '#34D399' : '#14532D',
+              backgroundColor: isDark ? 'rgba(52, 211, 153, 0.16)' : 'rgba(20, 83, 45, 0.12)',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: true,
+              tension: 0.32
+            },
+            {
+              label: 'Water-Resilient Rotation',
+              data: cumWater,
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              borderWidth: 2.5,
+              borderDash: [5, 4],
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              fill: false,
+              tension: 0.32
+            },
+            {
+              label: 'Baseline Monocrop',
+              data: cumBaseline,
+              borderColor: '#D97706',
+              backgroundColor: 'rgba(217, 119, 6, 0.08)',
+              borderWidth: 2,
+              pointRadius: 4,
+              fill: false,
+              tension: 0.32
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: headingColor, usePointStyle: true, padding: 16, font: chartFont }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw < 0 ? '-' : ''}${curSymbol}${Math.abs(ctx.raw).toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            y: {
+              grid: { color: gridColor },
+              ticks: {
+                color: textColor,
+                font: chartFont,
+                callback: (val) => `${val < 0 ? '-' : ''}${curSymbol}${Math.abs(val).toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
+
+      // Graph 2: Annual Water Demand & Input Cost
+      const ctx2 = document.getElementById('chart-water-cost').getContext('2d');
+      waterCostChartInstance = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Baseline', 'Soil Health', 'Water-Resilient'],
+          datasets: [
+            {
+              label: 'Annual Water (m³)',
+              data: [waterCostData.baseWater, waterCostData.soilWater, waterCostData.resWater],
+              backgroundColor: isDark ? 'rgba(56, 189, 248, 0.78)' : 'rgba(2, 132, 199, 0.78)',
+              borderRadius: 8,
+              yAxisID: 'yWater'
+            },
+            {
+              label: `Avg Annual Cost (${appState.currency})`,
+              data: [waterCostData.baseCost, waterCostData.soilCost, waterCostData.resCost],
+              backgroundColor: isDark ? 'rgba(52, 211, 153, 0.85)' : 'rgba(20, 83, 45, 0.85)',
+              borderRadius: 8,
+              yAxisID: 'yCost'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: headingColor, usePointStyle: true, padding: 16, font: chartFont }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            yWater: {
+              type: 'linear',
+              position: 'left',
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${v.toLocaleString()} m³` }
+            },
+            yCost: {
+              type: 'linear',
+              position: 'right',
+              grid: { display: false },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${curSymbol}${v.toLocaleString()}` }
+            }
+          }
+        }
+      });
+
+      // Graph 3: 12-Month Climate Stress & Soil Moisture Resilience Profile
+      const ctx3 = document.getElementById('chart-seasonal-stress').getContext('2d');
+      seasonalChartInstance = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ALL_MONTHS,
+          datasets: [
+            {
+              type: 'line',
+              label: t('g3_leg2'),
+              data: coverMoistureSeries,
+              borderColor: isDark ? '#34D399' : '#14532D',
+              backgroundColor: 'rgba(16, 185, 129, 0.14)',
+              borderWidth: 3,
+              pointRadius: 4,
+              tension: 0.35,
+              fill: true
+            },
+            {
+              type: 'bar',
+              label: t('g3_leg1'),
+              data: etStressSeries,
+              backgroundColor: isDark ? 'rgba(251, 191, 36, 0.72)' : 'rgba(217, 119, 6, 0.72)',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: headingColor, usePointStyle: true, padding: 14, font: chartFont }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: textColor, font: chartFont } },
+            y: {
+              min: 0,
+              max: 105,
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: chartFont, callback: (v) => `${v}%` }
+            }
+          }
+        }
+      });
+    }
+
+    /* =====================================================================
+       6. TOAST & INITIALIZATION
+    ===================================================================== */
+    let toastTimeout = null;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      document.getElementById('toast-message').textContent = msg;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3200);
+    }
+
+    function showApiStatusBanner() {
+      const banner = document.getElementById('api-status-banner');
+      const icon = document.getElementById('api-status-icon');
+      const title = document.getElementById('api-status-title');
+      const message = document.getElementById('api-status-message');
+      if (!banner) return;
+
+      if (backendResult && backendResult.status === 'COMPLETED') {
+        banner.classList.remove('hidden');
+        banner.className = 'mb-6 rounded-2xl border p-4 flex items-start gap-3 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800';
+        icon.className = 'w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-emerald-500 text-white';
+        icon.innerHTML = '✓';
+        title.textContent = 'ML-Powered Results';
+        const crops = backendResult.result && backendResult.result.recommendedCrops;
+        if (crops && crops.length) {
+          const top3 = crops.slice(0, 3).map((c, i) => {
+            const s = c.scorePct != null ? Math.round(c.scorePct) + '%' : (c.score != null ? Math.round(c.score * 100) + '%' : '');
+            return `#${i + 1} ${c.crop} (${s})`;
+          }).join(', ');
+          message.textContent = `Recommended crops: ${top3}. Showing all ${Math.min(3, crops.length)} crops from ML analysis below.`;
+        } else {
+          message.textContent = 'Backend analysis completed successfully.';
+        }
+        if (backendResult.advice) {
+          message.textContent += ' ' + backendResult.advice;
+        }
+      } else if (backendResult && backendResult.status === 'FAILED') {
+        banner.classList.remove('hidden');
+        banner.className = 'mb-6 rounded-2xl border p-4 flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
+        icon.className = 'w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-amber-500 text-white';
+        icon.innerHTML = '!';
+        title.textContent = 'ML Service Unavailable';
+        message.textContent = backendResult.error || 'The ML service returned an error. Showing locally computed results instead.';
+      } else if (apiErrorMessage) {
+        banner.classList.remove('hidden');
+        banner.className = 'mb-6 rounded-2xl border p-4 flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
+        icon.className = 'w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-amber-500 text-white';
+        icon.innerHTML = '!';
+        title.textContent = 'Backend Connection Failed';
+        message.textContent = apiErrorMessage + '. Showing locally computed results instead.';
+      }
+      // If no backend result and no error, keep banner hidden (local mode)
+    }
+
+    /* =====================================================================
+       7. CHAT ASSISTANT
+    ===================================================================== */
+
+    function appendChatMessage(text, isUser = false) {
+      const container = document.getElementById('chat-messages');
+      if (!container) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex gap-2.5' + (isUser ? ' flex-row-reverse' : '');
+
+      const avatar = document.createElement('div');
+      avatar.className = 'w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ' +
+        (isUser ? 'bg-[#34D399] dark:bg-[#10B981]' : 'bg-[#14532D] dark:bg-[#10B981]');
+      avatar.innerHTML = isUser
+        ? '<svg class="w-3.5 h-3.5 text-white dark:text-[#06281E]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>'
+        : '<svg class="w-3.5 h-3.5 text-white dark:text-[#06281E]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>';
+
+      const bubble = document.createElement('div');
+      bubble.className = (isUser ? 'bg-[#14532D] dark:bg-[#10B981] text-white dark:text-[#06281E] rounded-2xl rounded-tr-md' : 'bg-lightCanvas dark:bg-darkInset rounded-2xl rounded-tl-md') +
+        ' px-3.5 py-2.5 max-w-[85%]';
+
+      const p = document.createElement('p');
+      p.className = 'text-xs leading-relaxed whitespace-pre-wrap';
+      p.textContent = text;
+
+      bubble.appendChild(p);
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+      container.appendChild(wrapper);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function appendChatTyping() {
+      const container = document.getElementById('chat-messages');
+      if (!container) return null;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex gap-2.5';
+      wrapper.id = 'chat-typing-indicator';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'w-7 h-7 rounded-full bg-[#14532D] dark:bg-[#10B981] flex items-center justify-center shrink-0 mt-0.5';
+      avatar.innerHTML = '<svg class="w-3.5 h-3.5 text-white dark:text-[#06281E]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bg-lightCanvas dark:bg-darkInset rounded-2xl rounded-tl-md px-4 py-3';
+      bubble.innerHTML = '<div class="flex items-center gap-1.5"><div class="w-1.5 h-1.5 rounded-full bg-[#4B6356] dark:text-[#94B8A6] animate-bounce" style="animation-delay:0s"></div><div class="w-1.5 h-1.5 rounded-full bg-[#4B6356] dark:text-[#94B8A6] animate-bounce" style="animation-delay:0.15s"></div><div class="w-1.5 h-1.5 rounded-full bg-[#4B6356] dark:text-[#94B8A6] animate-bounce" style="animation-delay:0.3s"></div></div>';
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+      container.appendChild(wrapper);
+      container.scrollTop = container.scrollHeight;
+      return wrapper;
+    }
+
+    function removeChatTyping() {
+      const indicator = document.getElementById('chat-typing-indicator');
+      if (indicator) indicator.remove();
+    }
+
+    async function sendChatMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById('chat-input');
+      const sendBtn = document.getElementById('chat-send-btn');
+      if (!input) return;
+
+      const question = input.value.trim();
+      if (!question) return;
+
+      if (!currentJobId) {
+        appendChatMessage("I don't have access to your analysis results. Please go back and generate a rotation plan first.");
+        return;
+      }
+
+      // Disable input while sending
+      input.disabled = true;
+      sendBtn.disabled = true;
+      sendBtn.classList.add('opacity-50');
+
+      // Append user message
+      appendChatMessage(question, true);
+      input.value = '';
+
+      // Show typing indicator
+      appendChatTyping();
+
+      try {
+        const resp = await fetch(`${API_BASE_URL}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobId: currentJobId,
+            question: question,
+            soilWeight: 0.5
+          })
+        });
+
+        removeChatTyping();
+
+        if (!resp.ok) {
+          const errorData = await resp.json().catch(() => ({}));
+          appendChatMessage(`Sorry, I couldn't process that: ${errorData.error || 'Something went wrong.'}`);
+          return;
+        }
+
+        const data = await resp.json();
+        appendChatMessage(data.reply || "I couldn't generate a response. Please try again.");
+      } catch (err) {
+        removeChatTyping();
+        appendChatMessage("Connection error. Please check your internet and try again.");
+        console.error('Chat error:', err);
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50');
+        input.focus();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      hydrateStateFromUrlOrStorage();
+      document.documentElement.classList.toggle('dark', !!appState.darkMode);
+      const sunIcon = document.getElementById('icon-sun');
+      const moonIcon = document.getElementById('icon-moon');
+      if (sunIcon && moonIcon) {
+        sunIcon.classList.toggle('hidden', !appState.darkMode);
+        moonIcon.classList.toggle('hidden', !!appState.darkMode);
+      }
+      renderLanguageMenu();
+      initLanguageDropdownListeners();
+
+      const tempSlider = document.getElementById('slider-temp-shock');
+      const rainSlider = document.getElementById('slider-rain-shock');
+      if (tempSlider) {
+        tempSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value || 0);
+          document.getElementById('badge-temp-shock').textContent = `+${val.toFixed(1)}°C`;
+          renderResultsAndCharts();
+        });
+      }
+      if (rainSlider) {
+        rainSlider.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value || 0, 10);
+          document.getElementById('badge-rain-shock').textContent = val === 0 ? '0% Normal' : `-${val}% Dry`;
+          renderResultsAndCharts();
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const dlWrapper = document.getElementById('download-report-wrapper');
+        const dlMenu = document.getElementById('download-report-menu');
+        if (dlWrapper && dlMenu && !dlWrapper.contains(e.target)) {
+          dlMenu.classList.add('hidden');
+        }
+      });
+
+      setLanguage(appState.lang || 'en');
+      showApiStatusBanner();
+    });
+  </script>
+</body>
+</html>
